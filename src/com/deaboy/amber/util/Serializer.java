@@ -1,6 +1,7 @@
 package com.deaboy.amber.util;
 
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
 
 public class Serializer
 {
@@ -21,6 +22,22 @@ public class Serializer
 		data += block.getZ() + ";";
 		data += block.getTypeId() + ";";
 		data += block.getData() + ";";
+		
+		return data;
+	}
+
+	public static String serializeEntity(Entity entity)
+	{
+		String data = new String();
+		
+		data += entity.getEntityId() + ";";
+		data += entity.getType().getTypeId() + ";";
+		data += entity.getWorld().getName() + ";";
+		data += entity.getLocation().getX() + ";";
+		data += entity.getLocation().getY() + ";";
+		data += entity.getLocation().getZ() + ";";
+		data += entity.getLocation().getYaw() + ";";
+		data += entity.getLocation().getPitch() + ";";
 		
 		return data;
 	}

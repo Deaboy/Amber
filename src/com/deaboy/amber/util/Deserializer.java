@@ -1,6 +1,10 @@
 package com.deaboy.amber.util;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 
 public class Deserializer
 {
@@ -21,6 +25,24 @@ public class Deserializer
 		}
 		catch (Exception e)
 		{
+		}
+	}
+
+	public static Entity deserializeEntity(String data)
+	{
+		String[] splitData = data.split(";");
+		
+		try
+		{
+			Location location = new Location(Bukkit.getWorld(splitData[2]), Double.parseDouble(splitData[3]), Double.parseDouble(splitData[4]), Double.parseDouble(splitData[5]), Float.parseFloat(splitData[6]), Float.parseFloat(splitData[7]));
+			
+			Entity entity = Bukkit.getWorld(splitData[2]).spawnEntity(location, EntityType.fromId(Integer.parseInt(splitData[1])));
+			
+			return entity;
+		}
+		catch (Exception e)
+		{
+			return null;
 		}
 	}
 
