@@ -10,9 +10,9 @@ public class AmberRecorder
 	private final String directoryPath = "plugins/Amber/Recordings";
 	private final String recordPath;
 	
-	private File directory;
-	private File record;
-	private World world;
+	private final File directory;
+	private final File record;
+	private final World world;
 	
 	public AmberRecorder(World world)
 	{
@@ -31,10 +31,13 @@ public class AmberRecorder
 		{
 			record.delete();
 		}
-		try {
+		
+		try
+		{
 			record.createNewFile();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	
 }
