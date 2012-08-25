@@ -10,10 +10,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class AmberPlugin extends JavaPlugin
 {
+	private static AmberPlugin instance;
 
 	@Override
 	public void onEnable()
 	{
+		AmberPlugin.instance = this;
+		
 		for (Entity e : Bukkit.getWorlds().get(0).getEntities())
 		{
 			String output = e.toString() + ":  ";
@@ -29,7 +32,11 @@ public class AmberPlugin extends JavaPlugin
 	@Override
 	public void onDisable()
 	{
-		
+		instance = null;
 	}
 
+	public static AmberPlugin getInstance()
+	{
+		return instance;
+	}
 }
