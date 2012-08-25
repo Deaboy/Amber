@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import org.bukkit.World;
 
-public class AmberRecorder
+public class AmberWorldRecorder
 {
 	private final String directoryPath = "plugins/Amber/Recordings";
 	private final String recordPath;
@@ -14,7 +14,7 @@ public class AmberRecorder
 	private final File record;
 	private final World world;
 	
-	public AmberRecorder(World world)
+	public AmberWorldRecorder(World world)
 	{
 		this.world = world;
 		
