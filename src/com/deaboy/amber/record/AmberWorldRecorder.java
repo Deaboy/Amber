@@ -1,108 +1,86 @@
 package com.deaboy.amber.record;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockEvent;
 
 import com.deaboy.amber.AmberPlugin;
+import com.deaboy.amber.util.Serializer;
 
 public class AmberWorldRecorder implements Listener
 {
-	private final String directoryPath = "plugins/Amber/Recordings";
-	private String recordPath;
-	
-	private List<TinyBlockLoc> blockLocs = new ArrayList<TinyBlockLoc>();
-	
-	private File directory = null;
-	private File record = null;
-	private FileOutputStream output = null;
-	
 	private final World world;
+
+	private final AmberWorldRecorderFileOutput output;
+	private final AmberWorldRecorderFileInput input;
 	
+	private State state;
+
+	private List<TinyBlockLoc> blockLocs = new ArrayList<TinyBlockLoc>();
+
 	public AmberWorldRecorder(World world)
 	{
 		this.world = world;
+		
+		output = new AmberWorldRecorderFileOutput(world.getName());
+		input = new AmberWorldRecorderFileInput(world.getName());
+		
+		state = State.IDLE;
 	}
+
+	/*
+	 * RECORDING METHODS 
+	 */
 	
 	public void startRecording()
 	{
-		initializeFile();
-		openFile();
+		if (state == State.IDLE)
+		{
+			state = State.RECORDING;
+		}
+		else
+		{
+			return;
+		}
+		output.open();
 		startListening();
+		saveAllEntities();
 	}
-	
+
 	public void stopRecording()
 	{
+		if (state == State.RECORDING)
+		{
+			state = State.IDLE;
+		}
+		else
+		{
+			return;
+		}
+		output.close();
 		stopListening();
-		closeFile();
 	}
 	
-	/*
-	 * FILE METHODS
-	 */
-
-	private void initializeFile()
-	{	
-		this.recordPath = this.world.getName() + ".awr"; //AWR = Amber World Recording
-		
-		this.directory = new File(directoryPath);
-		if (!directory.exists() || !directory.isDirectory())
-		{
-			directory.mkdir();
-		}
-		
-		this.record = new File(recordPath);
-		if (record.exists())
-		{
-			record.delete();
-		}
-		
-		try
-		{
-			record.createNewFile();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	private void openFile()
+	private void saveAllEntities()
 	{
-		try
+		if (output == null)
 		{
-			output = new FileOutputStream(record);
+			return;
 		}
-		catch (FileNotFoundException e)
+		
+		for (Entity e : world.getEntities())
 		{
-			e.printStackTrace();
-		}
-	}
-	
-	private void closeFile()
-	{
-		if (output != null)
-		{
-			try
-			{
-				output.close();
-				output = null;
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+			String data = Serializer.serializeEntity(e);
+			output.write(data);
 		}
 	}
 	
@@ -123,7 +101,21 @@ public class AmberWorldRecorder implements Listener
 	@EventHandler
 	public void onBlockEvent(BlockEvent e)
 	{
+		Block block = e.getBlock();
 		
+		if (locationAlreadySaved(block.getLocation()))
+		{
+			return;
+		}
+		if (output == null)
+		{
+			return;
+		}
+		
+		blockLocs.add(new TinyBlockLoc(block.getLocation()));
+		
+		String data = Serializer.serializeBlock(block);
+		output.write(data);
 	}
 	
 	/*
@@ -140,6 +132,11 @@ public class AmberWorldRecorder implements Listener
 			}
 		}
 		return false;
+	}
+	
+	private enum State
+	{
+		RECORDING, IDLE, RESTORING;
 	}
 	
 }
