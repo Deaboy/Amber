@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockEvent;
+import org.bukkit.event.Cancellable;
 
 import com.deaboy.amber.AmberPlugin;
 import com.deaboy.amber.util.Serializer;
@@ -101,26 +103,51 @@ public class AmberWorldRecorder implements Listener
 	@EventHandler
 	public void onBlockEvent(BlockEvent e)
 	{
-		Block block = e.getBlock();
-		
-		if (locationAlreadySaved(block.getLocation()))
+		if (!saveBlock(e.getBlock()))
 		{
 			return;
 		}
+		
+		// CANCEL THE EVENT
+		if (Cancellable.class.isInstance(e))
+		{
+			((Cancellable) e).setCancelled(true);
+		}
+	}
+	
+	/*
+	 * HELPER METHODS
+	 */
+	
+	public boolean saveBlock(Block block)
+	{
 		if (output == null)
 		{
-			return;
+			return false;
+		}
+		if (locationAlreadySaved(block.getLocation()))
+		{
+			return false;
 		}
 		
 		blockLocs.add(new TinyBlockLoc(block.getLocation()));
 		
 		String data = Serializer.serializeBlock(block);
 		output.write(data);
+		
+		if (block.getType() == Material.CHEST) // Check if double chest, then save the other one too.
+		{
+			Block block2;
+			
+			if ((block2 = world.getBlockAt(block.getX()+1, block.getY(), block.getZ())).getType() == Material.CHEST
+					|| (block2 = world.getBlockAt(block.getX()-1, block.getY(), block.getZ())).getType() == Material.CHEST
+					|| (block2 = world.getBlockAt(block.getX(), block.getY(), block.getZ()+1)).getType() == Material.CHEST
+					|| (block2 = world.getBlockAt(block.getX(), block.getY(), block.getZ()-1)).getType() == Material.CHEST)
+				saveBlock(block2);
+		}
+		
+		return true;
 	}
-	
-	/*
-	 * HELPER METHODS
-	 */
 	
 	public boolean locationAlreadySaved(Location loc)
 	{

@@ -3,9 +3,18 @@ package com.deaboy.amber.util;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BrewingStand;
+import org.bukkit.block.Chest;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.Furnace;
+import org.bukkit.block.Jukebox;
+import org.bukkit.block.NoteBlock;
+import org.bukkit.block.Sign;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
+
 
 public class Serializer
 {
@@ -13,6 +22,7 @@ public class Serializer
 	public static final String div2 = ":";
 	public static final String div3 = ";";
 	public static final String div4 = ",";
+	public static final String divInv = "/inv/";
 	
 	/**
 	 * Serializes the important information in the world
@@ -62,12 +72,40 @@ public class Serializer
 	{
 		String data = new String();
 		
+		data += block.getTypeId() + div1;
+		data += block.getData() + div1;
 		data += block.getWorld().getName() + div1;
 		data += block.getX() + div1;
 		data += block.getY() + div1;
-			data += block.getZ() + div1;
-		data += block.getTypeId() + div1;
-		data += block.getData() + div1;
+		data += block.getZ() + div1;
+		
+		switch (block.getType())
+		{
+		case BREWING_STAND:	data += ((BrewingStand) block).getBrewingTime() + div1;
+							data += divInv + serializeItemStack(((BrewingStand) block).getInventory().getContents()); //serializeItemStack includes a div1
+							break;
+		case CHEST:			data += divInv + serializeItemStack(((Chest) block).getBlockInventory().getContents()); //serializeItemStack includes a div1
+							break;
+		case MOB_SPAWNER:	data += ((CreatureSpawner) block).getSpawnedType().getTypeId() + div1;
+							data += ((CreatureSpawner) block).getDelay() + div1;
+							break;
+		case DISPENSER:		data += divInv + serializeItemStack(((Dispenser) block).getInventory().getContents()); //serializeItemStack includes a div1
+							break;
+		case FURNACE:		data += ((Furnace) block).getBurnTime() + div1;
+							data += ((Furnace) block).getCookTime() + div1;
+							data += divInv + serializeItemStack(((Furnace) block).getInventory().getContents());
+							break;
+		case JUKEBOX:		data += ((Jukebox) block).getPlaying().getId() + div1;
+							break;
+		case NOTE_BLOCK:	data += ((NoteBlock) block).getRawNote() + div1;;
+							break;
+		case SIGN:			data += ((Sign) block).getLine(0) + div1;
+							data += ((Sign) block).getLine(1) + div1;
+							data += ((Sign) block).getLine(2) + div1;
+							data += ((Sign) block).getLine(3) + div1;
+							break;
+		default:			break;
+		}
 		
 		return data;
 	}

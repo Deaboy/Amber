@@ -2,6 +2,7 @@ package com.deaboy.amber.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
@@ -10,6 +11,14 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.BrewingStand;
+import org.bukkit.block.Chest;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.Furnace;
+import org.bukkit.block.Jukebox;
+import org.bukkit.block.NoteBlock;
+import org.bukkit.block.Sign;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -21,6 +30,7 @@ public class Deserializer
 	public static final String div2 = Serializer.div2;
 	public static final String div3 = Serializer.div3;
 	public static final String div4 = Serializer.div4;
+	public static final String divInv = Serializer.divInv;
 
  	public static void deserializeWorld(String data)
 	{
@@ -90,30 +100,70 @@ public class Deserializer
 	 */
 	public static void deserializeBlock(String data)
 	{
-		String[] parts = data.split(div2);
-		
-		World world = Bukkit.getWorld(parts[0]);
-		if (world == null)
-		{
-			return;
-		}
-		Block block = world.getBlockAt(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
-		if (block == null)
-		{
-			return;
-		}
-		
-		BlockState backup = block.getState();
-		
 		try
 		{
-			block.setTypeId(Integer.parseInt(parts[4]));
-			block.setData(Byte.parseByte(parts[5]));
+			String[] parts = data.split(div2);
+			
+			World world = Bukkit.getWorld(parts[2]);
+			if (world == null)
+			{
+				return;
+			}
+			Block block = world.getBlockAt(Integer.parseInt(parts[3]), Integer.parseInt(parts[4]), Integer.parseInt(parts[5]));
+			if (block == null)
+			{
+				return;
+			}
+			
+			BlockState backup = block.getState();
+			
+			try
+			{
+				Material type = Material.getMaterial(Integer.parseInt(parts[0]));
+				
+				block.setType(type);
+				block.setData(Byte.parseByte(parts[1]));
+				
+				// USE ONLY PARTS VALUES > 5
+				
+				switch (block.getType())
+				{
+				case BREWING_STAND:	((BrewingStand) block).setBrewingTime(Integer.parseInt(parts[6]));
+									((BrewingStand) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(divInv + divInv.length()))));
+									break;
+				case CHEST:			((Chest) block).getBlockInventory().setContents(deserializeItemStack(data.substring(data.indexOf(divInv + divInv.length()))));
+									break;
+				case MOB_SPAWNER:	((CreatureSpawner) block).setSpawnedType(EntityType.fromId(Integer.parseInt(parts[6])));
+									((CreatureSpawner) block).setDelay(Integer.parseInt(parts[7]));
+									break;
+				case DISPENSER:		((Dispenser) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(divInv + divInv.length()))));
+									break;
+				case FURNACE:		((Furnace) block).setBurnTime(Short.parseShort(parts[6]));
+									((Furnace) block).setCookTime(Short.parseShort(parts[7]));
+									((Furnace) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(divInv + divInv.length()))));
+									break;
+				case JUKEBOX:		((Jukebox) block).setPlaying(Material.getMaterial(Integer.parseInt(parts[6])));
+									break;
+				case NOTE_BLOCK:	((NoteBlock) block).setRawNote(Byte.parseByte(parts[6]));
+									break;
+				case SIGN:			((Sign) block).setLine(0, parts[6]);
+									((Sign) block).setLine(1, parts[7]);
+									((Sign) block).setLine(2, parts[8]);
+									((Sign) block).setLine(3, parts[9]);
+									break;
+				default:			break;
+				}
+			}
+			catch (Exception e)
+			{
+				block.setTypeId(backup.getType().getId());
+				block.setData(backup.getData().getData());
+			}
 		}
 		catch (Exception e)
 		{
-			block.setTypeId(backup.getType().getId());
-			block.setData(backup.getData().getData());
+			Bukkit.getLogger().log(Level.SEVERE, e.toString());
+			return;
 		}
 	}
 
