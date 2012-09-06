@@ -1,5 +1,7 @@
 package com.deaboy.amber.util;
 
+import java.util.Collection;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -12,8 +14,24 @@ import org.bukkit.block.Jukebox;
 import org.bukkit.block.NoteBlock;
 import org.bukkit.block.Sign;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Chicken;
+import org.bukkit.entity.Cow;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.MagmaCube;
+import org.bukkit.entity.MushroomCow;
+import org.bukkit.entity.Ocelot;
+import org.bukkit.entity.Painting;
+import org.bukkit.entity.Pig;
+import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.Villager;
+import org.bukkit.entity.Wolf;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
 
 
 public class Serializer
@@ -117,14 +135,90 @@ public class Serializer
 	{
 		String data = Constants.prefixEntity;
 		
-		data += entity.getEntityId() + ";";
-		data += entity.getType().getTypeId() + ";";
-		data += entity.getWorld().getName() + ";";
-		data += entity.getLocation().getX() + ";";
-		data += entity.getLocation().getY() + ";";
-		data += entity.getLocation().getZ() + ";";
-		data += entity.getLocation().getYaw() + ";";
-		data += entity.getLocation().getPitch() + ";";
+		data += entity.getEntityId() + div1;			// 0
+		data += entity.getType().getTypeId() + div1;	// 1
+		data += entity.getWorld().getName() + div1;		// 2
+		data += entity.getLocation().getX() + div1;		// 3
+		data += entity.getLocation().getY() + div1;		// 4
+		data += entity.getLocation().getZ() + div1;		// 5
+		data += entity.getLocation().getYaw() + div1;	// 6
+		data += entity.getLocation().getPitch() + div1;	// 7
+		data += entity.getVelocity().getX() + div1;		// 8
+		data += entity.getVelocity().getY() + div1;		// 9
+		data += entity.getVelocity().getZ() + div1;		// 10
+		
+		if (entity instanceof LivingEntity)
+		{
+			data += ((LivingEntity) entity).getHealth() + div1; // 11
+			data += ((LivingEntity) entity).getRemainingAir() + div1; // 12
+			data += ((LivingEntity) entity).getFallDistance() + div1; // 13
+			
+			switch (entity.getType())
+			{
+			// HOSTILE
+			case CREEPER:	data += ((Creeper) entity).isPowered() + div1; // 14
+							break;
+			case ENDERMAN:	data += ((Enderman) entity).getCarriedMaterial() + div1; // 14
+							break;
+			case SLIME:		data += ((Slime) entity).getSize() + div1; // 14
+							break;
+			// NETHER
+			case MAGMA_CUBE:data += ((MagmaCube) entity).getSize() + div1; // 14
+							break;
+			// PASSIVE
+			case PIG:		data += ((Pig) entity).isAdult() + div1; // 14
+							data += ((Pig) entity).canBreed() + div1; // 15
+							data += ((Pig) entity).hasSaddle() + div1; // 16
+							break;
+			case COW:		data += ((Cow) entity).isAdult() + div1; // 14
+							data += ((Cow) entity).canBreed() + div1; // 15
+							break;
+			case MUSHROOM_COW:data += ((MushroomCow) entity).isAdult() + div1; // 14
+							data += ((MushroomCow) entity).canBreed() + div1; // 15
+							break;
+			case CHICKEN:	data += ((Chicken) entity).isAdult() + div1; // 14
+							data += ((Chicken) entity).canBreed() + div1; // 15
+							break;
+			case SHEEP:		data += ((Sheep) entity).isAdult() + div1; // 14
+							data += ((Sheep) entity).canBreed() + div1; // 15
+							data += ((Sheep) entity).getColor().name() + div1; // 16
+							break;
+			case WOLF:		data += ((Wolf) entity).isAdult() + div1; // 14
+							data += ((Wolf) entity).canBreed() + div1; // 15
+							data += ((Wolf) entity).isTamed() + div1; // 16
+							data += ((Wolf) entity).getOwner().getName() + div1; //17
+							data += ((Wolf) entity).isSitting() + div1; // 18
+							break;
+			case OCELOT:	data += ((Ocelot) entity).isAdult() + div1; // 14
+							data += ((Ocelot) entity).canBreed() + div1; // 15
+							data += ((Ocelot) entity).getCatType().getId() + div1; // 16
+							data += ((Ocelot) entity).isTamed() + div1; // 17
+							data += ((Ocelot) entity).getOwner().getName() + div1; // 18
+							data += ((Ocelot) entity).isSitting() + div1; // 19
+							break;
+			case VILLAGER:	data += ((Villager) entity).isAdult() + div1; // 14
+							data += ((Villager) entity).canBreed() + div1; // 15
+							data += ((Villager) entity).getProfession().getId() + div1; // 16
+							break;
+							
+			default:		break;
+			
+			}
+			
+			data += serializePotionEffects(((LivingEntity) entity).getActivePotionEffects()) + div1; // ?
+		}
+		else
+		{
+			switch (entity.getType())
+			{
+			case PAINTING:	data += ((Painting) entity).getArt().getId() + div1; // 14
+							data += ((Painting) entity).getAttachedFace().name() + div1; // 15
+							break;
+			case PRIMED_TNT:data += ((TNTPrimed) entity).getFireTicks() + div1;
+							break;
+			default:		break;
+			}
+		}
 		
 		return data;
 	}
@@ -172,6 +266,20 @@ public class Serializer
 		data += loc.getZ() + div1;
 		data += loc.getYaw() + div1;
 		data += loc.getPitch() + div1;
+		
+		return data;
+	}
+
+	public static String serializePotionEffects(Collection<PotionEffect> effects)
+	{
+		String data = Constants.prefixEffects;
+		
+		for (PotionEffect effect : effects)
+		{
+			data += effect.getType().getId() + div2;
+			data += effect.getAmplifier() + div2;
+			data += effect.getDuration() + div1;
+		}
 		
 		return data;
 	}

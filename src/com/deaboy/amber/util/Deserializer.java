@@ -23,6 +23,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 public class Deserializer
 {
@@ -192,6 +193,10 @@ public class Deserializer
 			
 			Entity entity = Bukkit.getWorld(parts[2]).spawnEntity(location, type);
 			
+			entity.setVelocity(new Vector(Double.parseDouble(parts[8]), Double.parseDouble(parts[9]), Double.parseDouble(parts[10])));
+			
+			//TODO DESERIALIZE DIFFERENT TYPES
+			
 			return entity;
 		}
 		catch (Exception e)
@@ -266,6 +271,11 @@ public class Deserializer
 		{
 			return null;
 		}
+	}
+
+	public static void deserializePotionEffects(String data)
+	{
+		
 	}
 
 }

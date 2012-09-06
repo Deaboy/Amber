@@ -11,4 +11,5 @@ public class Constants
 	public static final String prefixBlock = "/block/";
 	public static final String prefixInventory = "/inv/";
 	public static final String prefixLocation = "/loc/";
+	public static final String prefixEffects = "/fx/";
 }
