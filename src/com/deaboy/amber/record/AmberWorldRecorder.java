@@ -27,7 +27,7 @@ public class AmberWorldRecorder implements Listener
 	private final AmberWorldRecorderFileOutput output;
 	private final AmberWorldRecorderFileInput input;
 	
-	private Status state;
+	private Status status;
 	
 	private int schedule;
 	private static final short apt = 500; // ACTIONS PER TICK
@@ -41,7 +41,7 @@ public class AmberWorldRecorder implements Listener
 		output = new AmberWorldRecorderFileOutput(world.getName());
 		input = new AmberWorldRecorderFileInput(world.getName());
 		
-		state = Status.IDLE;
+		status = Status.IDLE;
 	}
 
 	/*
@@ -50,9 +50,9 @@ public class AmberWorldRecorder implements Listener
 	
 	public void startRecording()
 	{
-		if (state == Status.IDLE)
+		if (status == Status.IDLE)
 		{
-			state = Status.RECORDING;
+			status = Status.RECORDING;
 		}
 		else
 		{
@@ -65,9 +65,9 @@ public class AmberWorldRecorder implements Listener
 
 	public void stopRecording()
 	{
-		if (state == Status.RECORDING)
+		if (status == Status.RECORDING)
 		{
-			state = Status.IDLE;
+			status = Status.IDLE;
 		}
 		else
 		{
@@ -98,9 +98,9 @@ public class AmberWorldRecorder implements Listener
 	
 	public void startRestoring()
 	{
-		if (state == Status.IDLE)
+		if (status == Status.IDLE)
 		{
-			state = Status.RESTORING;
+			status = Status.RESTORING;
 		}
 		else
 		{
@@ -125,9 +125,9 @@ public class AmberWorldRecorder implements Listener
 	
 	public void stopRestoring()
 	{
-		if (state == Status.RESTORING)
+		if (status == Status.RESTORING)
 		{
-			state = Status.IDLE;
+			status = Status.IDLE;
 		}
 		else
 		{
@@ -191,16 +191,16 @@ public class AmberWorldRecorder implements Listener
 	}
 	
 	@EventHandler
-	public void onBlockEvent(BlockEvent e)
+	public void onBlock(BlockEvent e)
 	{
-		if (state == Status.RECORDING)
+		if (status == Status.RECORDING)
 		{
 			if (!saveBlock(e.getBlock()))
 			{
 				return;
 			}
 		}
-		else if (state == Status.RESTORING)
+		else if (status == Status.RESTORING)
 		{
 			if (Cancellable.class.isInstance(e))
 			{
@@ -259,9 +259,19 @@ public class AmberWorldRecorder implements Listener
 		return false;
 	}
 	
-	public Status getState()
+	public boolean isIdle()
 	{
-		return state;
+		return status == Status.IDLE;
+	}
+	
+	public boolean isRecording()
+	{
+		return status == Status.RECORDING;
+	}
+	
+	public boolean isRestoring()
+	{
+		return status == Status.RESTORING;
 	}
 	
 	private enum Status

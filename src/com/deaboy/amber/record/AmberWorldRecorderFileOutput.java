@@ -30,9 +30,9 @@ public class AmberWorldRecorderFileOutput implements Closeable
 	private void initializeDirectory()
 	{
 		this.directory = new File(dirPath);
-		if (!directory.exists() || !directory.isDirectory())
+		if (!directory.exists())
 		{
-			directory.mkdir();
+			directory.mkdirs();
 		}
 	}
 
