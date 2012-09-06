@@ -158,7 +158,8 @@ public class Serializer
 			// HOSTILE
 			case CREEPER:	data += ((Creeper) entity).isPowered() + div1; // 14
 							break;
-			case ENDERMAN:	data += ((Enderman) entity).getCarriedMaterial() + div1; // 14
+			case ENDERMAN:	data += ((Enderman) entity).getCarriedMaterial().getItemTypeId() + div1; // 14
+							data += ((Enderman) entity).getCarriedMaterial().getData(); // 
 							break;
 			case SLIME:		data += ((Slime) entity).getSize() + div1; // 14
 							break;
@@ -166,37 +167,35 @@ public class Serializer
 			case MAGMA_CUBE:data += ((MagmaCube) entity).getSize() + div1; // 14
 							break;
 			// PASSIVE
-			case PIG:		data += ((Pig) entity).isAdult() + div1; // 14
+			case PIG:		data += ((Pig) entity).getAge() + div1; // 14
 							data += ((Pig) entity).canBreed() + div1; // 15
 							data += ((Pig) entity).hasSaddle() + div1; // 16
 							break;
-			case COW:		data += ((Cow) entity).isAdult() + div1; // 14
+			case COW:		data += ((Cow) entity).getAge() + div1; // 14
 							data += ((Cow) entity).canBreed() + div1; // 15
 							break;
-			case MUSHROOM_COW:data += ((MushroomCow) entity).isAdult() + div1; // 14
+			case MUSHROOM_COW:data += ((MushroomCow) entity).getAge() + div1; // 14
 							data += ((MushroomCow) entity).canBreed() + div1; // 15
 							break;
-			case CHICKEN:	data += ((Chicken) entity).isAdult() + div1; // 14
+			case CHICKEN:	data += ((Chicken) entity).getAge() + div1; // 14
 							data += ((Chicken) entity).canBreed() + div1; // 15
 							break;
-			case SHEEP:		data += ((Sheep) entity).isAdult() + div1; // 14
+			case SHEEP:		data += ((Sheep) entity).getAge() + div1; // 14
 							data += ((Sheep) entity).canBreed() + div1; // 15
-							data += ((Sheep) entity).getColor().name() + div1; // 16
+							data += ((Sheep) entity).getColor().getData() + div1; // 16
 							break;
-			case WOLF:		data += ((Wolf) entity).isAdult() + div1; // 14
+			case WOLF:		data += ((Wolf) entity).getAge() + div1; // 14
 							data += ((Wolf) entity).canBreed() + div1; // 15
-							data += ((Wolf) entity).isTamed() + div1; // 16
-							data += ((Wolf) entity).getOwner().getName() + div1; //17
-							data += ((Wolf) entity).isSitting() + div1; // 18
+							data += (((Wolf) entity).getOwner() == null ? "null" : ((Wolf) entity).getOwner().getName()) + div1; // 16
+							data += ((Wolf) entity).isSitting() + div1; // 17
 							break;
-			case OCELOT:	data += ((Ocelot) entity).isAdult() + div1; // 14
+			case OCELOT:	data += ((Ocelot) entity).getAge() + div1; // 14
 							data += ((Ocelot) entity).canBreed() + div1; // 15
 							data += ((Ocelot) entity).getCatType().getId() + div1; // 16
-							data += ((Ocelot) entity).isTamed() + div1; // 17
-							data += ((Ocelot) entity).getOwner().getName() + div1; // 18
-							data += ((Ocelot) entity).isSitting() + div1; // 19
+							data += (((Ocelot) entity).getOwner() == null ? "null" : ((Ocelot) entity).getOwner().getName()) + div1; // 17
+							data += ((Ocelot) entity).isSitting() + div1; // 18
 							break;
-			case VILLAGER:	data += ((Villager) entity).isAdult() + div1; // 14
+			case VILLAGER:	data += ((Villager) entity).getAge() + div1; // 14
 							data += ((Villager) entity).canBreed() + div1; // 15
 							data += ((Villager) entity).getProfession().getId() + div1; // 16
 							break;

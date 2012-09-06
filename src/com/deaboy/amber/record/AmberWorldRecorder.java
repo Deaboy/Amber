@@ -109,6 +109,11 @@ public class AmberWorldRecorder implements Listener
 		input.open();
 		startListening();
 		
+		for (Entity e : world.getEntities())
+		{
+			e.remove();
+		}
+		
 		schedule = Bukkit.getScheduler().scheduleSyncRepeatingTask(AmberPlugin.getInstance(), new Runnable()
 		{
 			public void run()
@@ -148,7 +153,7 @@ public class AmberWorldRecorder implements Listener
 				return;
 			}
 			
-			if (data.startsWith(Constants.prefixBlock))
+			if (data.startsWith(Constants.prefixWorld))
 			{
 				Deserializer.deserializeWorld(data);
 				step--;
