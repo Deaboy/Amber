@@ -16,6 +16,8 @@ import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.Cancellable;
 
 import com.deaboy.amber.AmberPlugin;
+import com.deaboy.amber.util.Constants;
+import com.deaboy.amber.util.Deserializer;
 import com.deaboy.amber.util.Serializer;
 
 public class AmberWorldRecorder implements Listener
@@ -25,7 +27,10 @@ public class AmberWorldRecorder implements Listener
 	private final AmberWorldRecorderFileOutput output;
 	private final AmberWorldRecorderFileInput input;
 	
-	private State state;
+	private Status state;
+	
+	private int schedule;
+	private static final short apt = 500; // ACTIONS PER TICK
 
 	private List<TinyBlockLoc> blockLocs = new ArrayList<TinyBlockLoc>();
 
@@ -36,7 +41,7 @@ public class AmberWorldRecorder implements Listener
 		output = new AmberWorldRecorderFileOutput(world.getName());
 		input = new AmberWorldRecorderFileInput(world.getName());
 		
-		state = State.IDLE;
+		state = Status.IDLE;
 	}
 
 	/*
@@ -45,9 +50,9 @@ public class AmberWorldRecorder implements Listener
 	
 	public void startRecording()
 	{
-		if (state == State.IDLE)
+		if (state == Status.IDLE)
 		{
-			state = State.RECORDING;
+			state = Status.RECORDING;
 		}
 		else
 		{
@@ -60,9 +65,9 @@ public class AmberWorldRecorder implements Listener
 
 	public void stopRecording()
 	{
-		if (state == State.RECORDING)
+		if (state == Status.RECORDING)
 		{
-			state = State.IDLE;
+			state = Status.IDLE;
 		}
 		else
 		{
@@ -70,6 +75,7 @@ public class AmberWorldRecorder implements Listener
 		}
 		output.close();
 		stopListening();
+		blockLocs.clear();
 	}
 	
 	private void saveAllEntities()
@@ -83,6 +89,85 @@ public class AmberWorldRecorder implements Listener
 		{
 			String data = Serializer.serializeEntity(e);
 			output.write(data);
+		}
+	}
+	
+	/*
+	 * RESTORING METHODS
+	 */
+	
+	public void startRestoring()
+	{
+		if (state == Status.IDLE)
+		{
+			state = Status.RESTORING;
+		}
+		else
+		{
+			return;
+		}
+		input.open();
+		startListening();
+		
+		schedule = Bukkit.getScheduler().scheduleSyncRepeatingTask(AmberPlugin.getInstance(), new Runnable()
+		{
+			public void run()
+			{
+				restoreStep();
+			}
+		}, 0, 0);
+	}
+	
+	public void stopRestoring()
+	{
+		if (state == Status.RESTORING)
+		{
+			state = Status.IDLE;
+		}
+		else
+		{
+			return;
+		}
+		input.close();
+		stopListening();
+		
+		Bukkit.getScheduler().cancelTask(schedule);
+	}
+	
+	public void restoreStep()
+	{
+		short step = apt;
+		
+		while (step > 0)
+		{
+			String data = input.read();
+			
+			if (data == null)
+			{
+				stopRestoring();
+				return;
+			}
+			
+			if (data.startsWith(Constants.prefixBlock))
+			{
+				Deserializer.deserializeWorld(data);
+				step--;
+			}
+			else if (data.startsWith(Constants.prefixEntity))
+			{
+				Deserializer.deserializeEntity(data);
+				step--;
+			}
+			else if (data.startsWith(Constants.prefixBlock))
+			{
+				Deserializer.deserializeBlock(data);
+				step--;
+			}
+			else
+			{
+				continue;
+			}
+			
 		}
 	}
 	
@@ -103,15 +188,23 @@ public class AmberWorldRecorder implements Listener
 	@EventHandler
 	public void onBlockEvent(BlockEvent e)
 	{
-		if (!saveBlock(e.getBlock()))
+		if (state == Status.RECORDING)
+		{
+			if (!saveBlock(e.getBlock()))
+			{
+				return;
+			}
+		}
+		else if (state == Status.RESTORING)
+		{
+			if (Cancellable.class.isInstance(e))
+			{
+				((Cancellable) e).setCancelled(true);
+			}
+		}
+		else
 		{
 			return;
-		}
-		
-		// CANCEL THE EVENT
-		if (Cancellable.class.isInstance(e))
-		{
-			((Cancellable) e).setCancelled(true);
 		}
 	}
 	
@@ -161,7 +254,12 @@ public class AmberWorldRecorder implements Listener
 		return false;
 	}
 	
-	private enum State
+	public Status getState()
+	{
+		return state;
+	}
+	
+	private enum Status
 	{
 		RECORDING, IDLE, RESTORING;
 	}

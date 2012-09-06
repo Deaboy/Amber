@@ -79,11 +79,19 @@ public class AmberWorldRecorderFileInput implements Closeable
 	 * Reads the next line from the input stream
 	 * @throws IOException 
 	 */
-	public String read() throws IOException
+	public String read()
 	{
 		if (input != null)
 		{
-			return input.readLine();
+			try
+			{
+				return input.readLine();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				return null;
+			}
 		}
 		return null;
 	}
@@ -92,11 +100,18 @@ public class AmberWorldRecorderFileInput implements Closeable
 	 * Closes the output file
 	 */
 	@Override
-	public void close() throws IOException
+	public void close()
 	{
 		if (input != null)
 		{
-			input.close();
+			try
+			{
+				input.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 		file = null;
 	}

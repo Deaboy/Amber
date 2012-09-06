@@ -18,11 +18,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class Serializer
 {
-	public static final String div1 = "|";
-	public static final String div2 = ":";
-	public static final String div3 = ";";
-	public static final String div4 = ",";
-	public static final String divInv = "/inv/";
+	private static final String div1 = Constants.div1;
+	private static final String div2 = Constants.div2;
+	private static final String div3 = Constants.div3;
+	private static final String div4 = Constants.div4;
 	
 	/**
 	 * Serializes the important information in the world
@@ -31,7 +30,7 @@ public class Serializer
 	 */
 	public static String serializeWorld(World world)
 	{
-		String data = new String();
+		String data = Constants.prefixWorld;
 		// WORLD NAME
 		data += world.getName();
 		
@@ -70,7 +69,7 @@ public class Serializer
 	 */
 	public static String serializeBlock(Block block)
 	{
-		String data = new String();
+		String data = Constants.prefixBlock;
 		
 		data += block.getTypeId() + div1;
 		data += block.getData() + div1;
@@ -82,18 +81,22 @@ public class Serializer
 		switch (block.getType())
 		{
 		case BREWING_STAND:	data += ((BrewingStand) block).getBrewingTime() + div1;
-							data += divInv + serializeItemStack(((BrewingStand) block).getInventory().getContents()); //serializeItemStack includes a div1
+							data += Constants.prefixInventory;
+							data += serializeItemStack(((BrewingStand) block).getInventory().getContents()); //serializeItemStack includes a div1
 							break;
-		case CHEST:			data += divInv + serializeItemStack(((Chest) block).getBlockInventory().getContents()); //serializeItemStack includes a div1
+		case CHEST:			data += Constants.prefixInventory;
+							data += serializeItemStack(((Chest) block).getBlockInventory().getContents()); //serializeItemStack includes a div1
 							break;
 		case MOB_SPAWNER:	data += ((CreatureSpawner) block).getSpawnedType().getTypeId() + div1;
 							data += ((CreatureSpawner) block).getDelay() + div1;
 							break;
-		case DISPENSER:		data += divInv + serializeItemStack(((Dispenser) block).getInventory().getContents()); //serializeItemStack includes a div1
+		case DISPENSER:		data += Constants.prefixInventory;
+							data += serializeItemStack(((Dispenser) block).getInventory().getContents()); //serializeItemStack includes a div1
 							break;
 		case FURNACE:		data += ((Furnace) block).getBurnTime() + div1;
 							data += ((Furnace) block).getCookTime() + div1;
-							data += divInv + serializeItemStack(((Furnace) block).getInventory().getContents());
+							data += Constants.prefixInventory;
+							data += serializeItemStack(((Furnace) block).getInventory().getContents());
 							break;
 		case JUKEBOX:		data += ((Jukebox) block).getPlaying().getId() + div1;
 							break;
@@ -112,7 +115,7 @@ public class Serializer
 
 	public static String serializeEntity(Entity entity)
 	{
-		String data = new String();
+		String data = Constants.prefixEntity;
 		
 		data += entity.getEntityId() + ";";
 		data += entity.getType().getTypeId() + ";";
@@ -126,9 +129,9 @@ public class Serializer
 		return data;
 	}
 
-	public static String serializeItemStack(ItemStack[] stack)
+	public static String serializeItemStack(ItemStack ... stack)
 	{
-		String data = new String();
+		String data = Constants.prefixInventory;
 		
 		for (int slot = 0; slot < stack.length; slot++)
 		{
@@ -161,7 +164,7 @@ public class Serializer
 
 	public static String serializeLocation(Location loc)
 	{
-		String data = new String();
+		String data = Constants.prefixLocation;
 		
 		data += loc.getWorld() + div1;
 		data += loc.getX() + div1;

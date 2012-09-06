@@ -26,14 +26,19 @@ import org.bukkit.inventory.ItemStack;
 
 public class Deserializer
 {
-	public static final String div1 = Serializer.div1;
-	public static final String div2 = Serializer.div2;
-	public static final String div3 = Serializer.div3;
-	public static final String div4 = Serializer.div4;
-	public static final String divInv = Serializer.divInv;
-
- 	public static void deserializeWorld(String data)
+	private static final String div1 = Constants.div1;
+	private static final String div2 = Constants.div2;
+	private static final String div3 = Constants.div3;
+	@SuppressWarnings("unused")
+	private static final String div4 = Constants.div4;
+	
+	/**
+	 * Deserializes data into world settings.
+	 * @param data
+	 */
+	public static void deserializeWorld(String data)
 	{
+		data = data.substring(Constants.prefixWorld.length());
 		String[] splitData = data.split(div1);
 		
 		try
@@ -100,10 +105,11 @@ public class Deserializer
 	 */
 	public static void deserializeBlock(String data)
 	{
+		data = data.substring(Constants.prefixBlock.length());
+		String[] parts = data.split(div2);
+		
 		try
 		{
-			String[] parts = data.split(div2);
-			
 			World world = Bukkit.getWorld(parts[2]);
 			if (world == null)
 			{
@@ -129,18 +135,18 @@ public class Deserializer
 				switch (block.getType())
 				{
 				case BREWING_STAND:	((BrewingStand) block).setBrewingTime(Integer.parseInt(parts[6]));
-									((BrewingStand) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(divInv + divInv.length()))));
+									((BrewingStand) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
-				case CHEST:			((Chest) block).getBlockInventory().setContents(deserializeItemStack(data.substring(data.indexOf(divInv + divInv.length()))));
+				case CHEST:			((Chest) block).getBlockInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
 				case MOB_SPAWNER:	((CreatureSpawner) block).setSpawnedType(EntityType.fromId(Integer.parseInt(parts[6])));
 									((CreatureSpawner) block).setDelay(Integer.parseInt(parts[7]));
 									break;
-				case DISPENSER:		((Dispenser) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(divInv + divInv.length()))));
+				case DISPENSER:		((Dispenser) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
 				case FURNACE:		((Furnace) block).setBurnTime(Short.parseShort(parts[6]));
 									((Furnace) block).setCookTime(Short.parseShort(parts[7]));
-									((Furnace) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(divInv + divInv.length()))));
+									((Furnace) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
 				case JUKEBOX:		((Jukebox) block).setPlaying(Material.getMaterial(Integer.parseInt(parts[6])));
 									break;
@@ -169,6 +175,7 @@ public class Deserializer
 
 	public static Entity deserializeEntity(String data)
 	{
+		data = data.substring(Constants.prefixEntity.length());
 		String[] parts = data.split(div1);
 		
 		try
@@ -200,6 +207,7 @@ public class Deserializer
 	 */
 	public static ItemStack[] deserializeItemStack(String data)
 	{
+		data = data.substring(Constants.prefixInventory.length());
 		String[] splitData = data.split(div1);
 		ItemStack[] items = new ItemStack[splitData.length];
 		
@@ -240,6 +248,7 @@ public class Deserializer
 
 	public static Location deserializeLocation(String data)
 	{
+		data = data.substring(Constants.prefixLocation.length());
 		String[] parts = data.split(div1);
 		try
 		{
