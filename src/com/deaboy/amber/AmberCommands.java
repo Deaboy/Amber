@@ -30,7 +30,7 @@ public class AmberCommands implements CommandExecutor
 		
 		if (args[0].equalsIgnoreCase("record"))
 		{
-			if (AmberPlugin.startRecordingWorld(p.getWorld()))
+			if (Amber.startRecordingWorld(p.getWorld()))
 			{
 				sender.sendMessage("Recording world");
 			}
@@ -41,7 +41,7 @@ public class AmberCommands implements CommandExecutor
 		}
 		else if (args[0].equalsIgnoreCase("stoprecording"))
 		{
-			if (AmberPlugin.stopRecordingWorld(p.getWorld()))
+			if (Amber.stopRecordingWorld(p.getWorld()))
 			{
 				sender.sendMessage("Stopping recording");
 			}
@@ -52,7 +52,7 @@ public class AmberCommands implements CommandExecutor
 		}
 		else if (args[0].equalsIgnoreCase("restore"))
 		{
-			if (AmberPlugin.startRestoringWorld(p.getWorld()))
+			if (Amber.startRestoringWorld(p.getWorld()))
 			{
 				sender.sendMessage("Restoring world");
 			}
@@ -63,7 +63,7 @@ public class AmberCommands implements CommandExecutor
 		}
 		else if (args[0].equalsIgnoreCase("stoprestoring"))
 		{
-			if (AmberPlugin.stopRestoringWorld(p.getWorld()))
+			if (Amber.stopRestoringWorld(p.getWorld()))
 			{
 				sender.sendMessage("Stopping restoration.");
 			}

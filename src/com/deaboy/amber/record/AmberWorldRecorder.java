@@ -9,23 +9,20 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockEvent;
-import org.bukkit.event.Cancellable;
 
-import com.deaboy.amber.AmberPlugin;
+import com.deaboy.amber.Amber;
 import com.deaboy.amber.util.Constants;
 import com.deaboy.amber.util.Deserializer;
 import com.deaboy.amber.util.Serializer;
 
 public class AmberWorldRecorder implements Listener
 {
-	private final World world;
+	public final World world;
 
 	private final AmberWorldRecorderFileOutput output;
 	private final AmberWorldRecorderFileInput input;
+	private final AmberWorldRecorderListener listener;
 	
 	private Status status;
 	
@@ -40,6 +37,7 @@ public class AmberWorldRecorder implements Listener
 		
 		output = new AmberWorldRecorderFileOutput(world.getName());
 		input = new AmberWorldRecorderFileInput(world.getName());
+		listener = new AmberWorldRecorderListener(world);
 		
 		status = Status.IDLE;
 	}
@@ -59,7 +57,7 @@ public class AmberWorldRecorder implements Listener
 			return;
 		}
 		output.open();
-		startListening();
+		listener.startListening();
 		saveAllEntities();
 	}
 
@@ -74,7 +72,7 @@ public class AmberWorldRecorder implements Listener
 			return;
 		}
 		output.close();
-		stopListening();
+		listener.stopListening();
 		blockLocs.clear();
 	}
 	
@@ -107,14 +105,14 @@ public class AmberWorldRecorder implements Listener
 			return;
 		}
 		input.open();
-		startListening();
+		listener.startListening();
 		
 		for (Entity e : world.getEntities())
 		{
 			e.remove();
 		}
 		
-		schedule = Bukkit.getScheduler().scheduleSyncRepeatingTask(AmberPlugin.getInstance(), new Runnable()
+		schedule = Bukkit.getScheduler().scheduleSyncRepeatingTask(Amber.getInstance(), new Runnable()
 		{
 			public void run()
 			{
@@ -134,7 +132,7 @@ public class AmberWorldRecorder implements Listener
 			return;
 		}
 		input.close();
-		stopListening();
+		listener.stopListening();
 		
 		Bukkit.getScheduler().cancelTask(schedule);
 	}
@@ -175,47 +173,6 @@ public class AmberWorldRecorder implements Listener
 			
 		}
 	}
-	
-	/*
-	 * LISTENING METHODS
-	 */
-
-	private void startListening()
-	{
-		Bukkit.getServer().getPluginManager().registerEvents(this, AmberPlugin.getInstance());
-	}
-
-	private void stopListening()
-	{
-		HandlerList.unregisterAll(this);
-	}
-	
-	@EventHandler
-	public void onBlock(BlockEvent e)
-	{
-		if (status == Status.RECORDING)
-		{
-			if (!saveBlock(e.getBlock()))
-			{
-				return;
-			}
-		}
-		else if (status == Status.RESTORING)
-		{
-			if (Cancellable.class.isInstance(e))
-			{
-				((Cancellable) e).setCancelled(true);
-			}
-		}
-		else
-		{
-			return;
-		}
-	}
-	
-	/*
-	 * HELPER METHODS
-	 */
 	
 	public boolean saveBlock(Block block)
 	{

@@ -7,16 +7,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.deaboy.amber.record.AmberWorldRecorder;
 
-public class AmberPlugin extends JavaPlugin
+public class Amber extends JavaPlugin
 {
-	private static AmberPlugin instance;
+	private static Amber instance;
 	
 	private HashMap<World, AmberWorldRecorder> recorders = new HashMap<World, AmberWorldRecorder>();
 
 	@Override
 	public void onEnable()
 	{
-		AmberPlugin.instance = this;
+		Amber.instance = this;
 		
 		new AmberCommands();
 	}
@@ -27,7 +27,7 @@ public class AmberPlugin extends JavaPlugin
 		instance = null;
 	}
 	
-	public static AmberPlugin getInstance()
+	public static Amber getInstance()
 	{
 		return instance;
 	}
@@ -36,7 +36,7 @@ public class AmberPlugin extends JavaPlugin
 	
 	public static boolean startRecordingWorld(World world)
 	{
-		AmberPlugin plugin = getInstance();
+		Amber plugin = getInstance();
 		
 		if (!plugin.recorders.containsKey(world))
 		{
@@ -58,7 +58,7 @@ public class AmberPlugin extends JavaPlugin
 	
 	public static boolean stopRecordingWorld(World world)
 	{
-		AmberPlugin plugin = getInstance();
+		Amber plugin = getInstance();
 		
 		if (!plugin.recorders.containsKey(world))
 		{
@@ -80,7 +80,7 @@ public class AmberPlugin extends JavaPlugin
 	
 	public static boolean startRestoringWorld(World world)
 	{
-		AmberPlugin plugin = getInstance();
+		Amber plugin = getInstance();
 		
 		if (!plugin.recorders.containsKey(world))
 		{
@@ -104,7 +104,7 @@ public class AmberPlugin extends JavaPlugin
 
 	public static boolean stopRestoringWorld(World world)
 	{
-		AmberPlugin plugin = getInstance();
+		Amber plugin = getInstance();
 		
 		if (!plugin.recorders.containsKey(world))
 		{
@@ -126,4 +126,15 @@ public class AmberPlugin extends JavaPlugin
 		}
 	}
 	
+	public static AmberWorldRecorder getWorldRecorder(World world)
+	{
+		Amber plugin = getInstance();
+		
+		if (!plugin.recorders.containsKey(world))
+		{
+			plugin.recorders.put(world, new AmberWorldRecorder(world));
+		}
+		
+		return plugin.recorders.get(world);
+	}
 }
