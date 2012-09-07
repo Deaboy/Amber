@@ -102,7 +102,13 @@ public class AmberWorldRecorderListener implements Listener
 	}
 
 	@EventHandler
-	public void onBlockPiston(BlockPistonEvent e)
+	public void onBlockPistonExtend(BlockPistonExtendEvent e)
+	{
+		onBlockEvent(e);
+	}
+
+	@EventHandler
+	public void onBlockPistonRetract(BlockPistonRetractEvent e)
 	{
 		onBlockEvent(e);
 	}

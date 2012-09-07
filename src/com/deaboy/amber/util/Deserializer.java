@@ -1,5 +1,7 @@
 package com.deaboy.amber.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -42,6 +44,8 @@ import org.bukkit.entity.Villager.Profession;
 import org.bukkit.entity.Wolf;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 public class Deserializer
@@ -272,7 +276,7 @@ public class Deserializer
 				
 				}
 				
-				// deserializePotionEffects(((LivingEntity) entity).getActivePotionEffects()) + div1; // ?
+				((LivingEntity) entity).addPotionEffects(deserializePotionEffects(data.substring(data.indexOf(Constants.prefixEffects)))); // ?
 			}
 			else
 			{
@@ -347,10 +351,11 @@ public class Deserializer
 
 	public static Location deserializeLocation(String data)
 	{
-		data = data.substring(Constants.prefixLocation.length());
-		String[] parts = data.split(div1);
 		try
 		{
+			data = data.substring(Constants.prefixLocation.length());
+			String[] parts = data.split(div1);
+			
 			Location loc = new Location(
 					Bukkit.getWorld(parts[0]),
 					Double.parseDouble(parts[1]),
@@ -367,9 +372,27 @@ public class Deserializer
 		}
 	}
 
-	public static void deserializePotionEffects(String data)
+	public static Collection<PotionEffect> deserializePotionEffects(String data)
 	{
+		Collection<PotionEffect> effects = new ArrayList<PotionEffect>();
 		
+		try
+		{
+			data = data.substring(Constants.prefixEffects.length());
+			String[] parts = data.split(div1);
+			
+			for (String effectdata : parts)
+			{
+				String[] effectparts = effectdata.split(div2);
+				effects.add(new PotionEffect(PotionEffectType.getById(Integer.parseInt(effectparts[0])), Integer.parseInt(effectparts[1]), Integer.parseInt(effectparts[2])));
+			}
+		}
+		catch (Exception e)
+		{
+			effects.clear();
+		}
+		
+		return effects;
 	}
 
 }
