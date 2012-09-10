@@ -50,49 +50,54 @@ import org.bukkit.util.Vector;
 
 public class Deserializer
 {
-	private static final String div1 = Constants.div1;
+	private static final String div1 = "\\" + Constants.div1;
 	private static final String div2 = Constants.div2;
 	private static final String div3 = Constants.div3;
 	@SuppressWarnings("unused")
 	private static final String div4 = Constants.div4;
-	
+
 	/**
 	 * Deserializes data into world settings.
 	 * @param data
 	 */
 	public static void deserializeWorld(String data)
 	{
-		data = data.substring(Constants.prefixWorld.length());
-		String[] splitData = data.split(div1);
+		data = new String(data.substring(Constants.prefixWorld.length()));
+		String[] parts = data.split(div1).clone();
+		
+		for (int i = 0; i < parts.length; i++)
+		{
+			parts[i] = new String(parts[i]);
+		}
 		
 		try
 		{
 			// GET WORLD
-			World world = Bukkit.getWorld(splitData[0]);
+			World world = Bukkit.getWorld(parts[0]);
 			
 			//PARSE THE DATA
-			long fullTime = Long.parseLong(splitData[1]);
+			long fullTime = Long.parseLong(parts[1]);
 			
 			//SPAWN
-			double spawnX = Double.parseDouble(splitData[2].split(div2)[0]);
-			double spawnY = Double.parseDouble(splitData[2].split(div2)[1]);
-			double spawnZ = Double.parseDouble(splitData[2].split(div2)[2]);
+			double spawnX = Double.parseDouble(parts[2].split(div2)[0]);
+			double spawnY = Double.parseDouble(parts[2].split(div2)[1]);
+			double spawnZ = Double.parseDouble(parts[2].split(div2)[2]);
 			
 			//WEATHER
-			int weatherDuration = Integer.parseInt(splitData[3].split(div2)[0]);
-			int thunderDuration = Integer.parseInt(splitData[3].split(div2)[1]);
-			boolean isThundering = Boolean.parseBoolean(splitData[3].split(div2)[2]);
+			int weatherDuration = Integer.parseInt(parts[3].split(div2)[0]);
+			int thunderDuration = Integer.parseInt(parts[3].split(div2)[1]);
+			boolean isThundering = Boolean.parseBoolean(parts[3].split(div2)[2]);
 			
 			//MOBS
-			int monsterLimit = Integer.parseInt(splitData[4]);
-			long monsterSpawnTicks = Long.parseLong(splitData[5]);
-			int animalLimit = Integer.parseInt(splitData[6]);
-			long animalSpawnTicks = Long.parseLong(splitData[7]);
-			int waterAnimalLimit = Integer.parseInt(splitData[8]);
+			int monsterLimit = Integer.parseInt(parts[4]);
+			long monsterSpawnTicks = Long.parseLong(parts[5]);
+			int animalLimit = Integer.parseInt(parts[6]);
+			long animalSpawnTicks = Long.parseLong(parts[7]);
+			int waterAnimalLimit = Integer.parseInt(parts[8]);
 			
 			//SETTINGS
-			int difficulty = Integer.parseInt(splitData[9]);
-			boolean pvp = Boolean.parseBoolean(splitData[10]);
+			int difficulty = Integer.parseInt(parts[9]);
+			boolean pvp = Boolean.parseBoolean(parts[10]);
 			
 			//SAVE DATA TO WORLD
 			world.setFullTime(fullTime);
@@ -129,8 +134,13 @@ public class Deserializer
 	 */
 	public static void deserializeBlock(String data)
 	{
-		data = data.substring(Constants.prefixBlock.length());
-		String[] parts = data.split(div2);
+		data = new String(data.substring(Constants.prefixBlock.length()));
+		String[] parts = data.split(div1).clone();
+		
+		for (int i = 0; i < parts.length; i++)
+		{
+			parts[i] = new String(parts[i]);
+		}
 		
 		try
 		{
@@ -186,6 +196,7 @@ public class Deserializer
 			}
 			catch (Exception e)
 			{
+				Bukkit.getLogger().log(Level.SEVERE, e.toString());
 				block.setTypeId(backup.getType().getId());
 				block.setData(backup.getData().getData());
 			}
@@ -203,10 +214,20 @@ public class Deserializer
 		
 		try
 		{
-			data = data.substring(Constants.prefixEntity.length());
-			String[] parts = data.split(div1);
+			data = new String(data.substring(Constants.prefixEntity.length()));
+			String[] parts = new String[data.split(div1).clone().length];
+			
+			for (int i = 0; i < parts.length; i++)
+			{
+				parts[i] = new String(data.split(div1).clone()[i]);
+			}
 			
 			EntityType type = EntityType.fromId(Integer.parseInt(parts[1]));
+			
+			if (type == null)
+			{
+				return null;
+			}
 			
 			Location location = new Location(
 					Bukkit.getWorld(parts[2]),
@@ -295,6 +316,7 @@ public class Deserializer
 		}
 		catch (Exception e)
 		{
+			Bukkit.getLogger().log(Level.SEVERE, e.toString());
 			if (entity != null)
 			{
 				entity.remove();
@@ -310,27 +332,32 @@ public class Deserializer
 	 */
 	public static ItemStack[] deserializeItemStack(String data)
 	{
-		data = data.substring(Constants.prefixInventory.length());
-		String[] splitData = data.split(div1);
-		ItemStack[] items = new ItemStack[splitData.length];
+		data = new String(data.substring(Constants.prefixInventory.length()));
+		String[] parts = data.split(div1).clone();
 		
-		for (int slot = 0; slot < splitData.length; slot++)
+		for (int i = 0; i < parts.length; i++)
 		{
-			String itemData = splitData[slot];
+			parts[i] = new String(parts[i]);
+		}
+		ItemStack[] items = new ItemStack[parts.length];
+		
+		for (int slot = 0; slot < parts.length; slot++)
+		{
+			String itemData = parts[slot];
 			
 			try
 			{
-				String[] parts = itemData.split(div2);
+				String[] itemParts = itemData.split(div2);
 				
-				int amount = Integer.parseInt(parts[0]);
-				int type = Integer.parseInt(parts[1]);
-				short durability = Short.parseShort(parts[2]);
+				int amount = Integer.parseInt(itemParts[0]);
+				int type = Integer.parseInt(itemParts[1]);
+				short durability = Short.parseShort(itemParts[2]);
 				
 				Map<Enchantment, Integer> enchantments = new HashMap<Enchantment, Integer>();
 				
-				if (parts.length > 3)
+				if (itemParts.length > 3)
 				{
-					for (String enchantment : parts[3].split(div3))
+					for (String enchantment : itemParts[3].split(div3))
 					{
 						enchantments.put(Enchantment.getById(Integer.parseInt(enchantment.split(",")[0])), Integer.parseInt(enchantment.split(",")[1]));
 					}
@@ -343,7 +370,10 @@ public class Deserializer
 				
 				items[slot] = item;
 			}
-			catch (Exception e) {}
+			catch (Exception e) {
+				Bukkit.getLogger().log(Level.SEVERE, e.toString());
+				return null;
+			}
 		}
 		
 		return items;
@@ -353,8 +383,13 @@ public class Deserializer
 	{
 		try
 		{
-			data = data.substring(Constants.prefixLocation.length());
-			String[] parts = data.split(div1);
+			data = new String(data.substring(Constants.prefixLocation.length()));
+			String[] parts = data.split(div1).clone();
+			
+			for (int i = 0; i < parts.length; i++)
+			{
+				parts[i] = new String(parts[i]);
+			}
 			
 			Location loc = new Location(
 					Bukkit.getWorld(parts[0]),
@@ -368,6 +403,7 @@ public class Deserializer
 		}
 		catch (Exception e)
 		{
+			Bukkit.getLogger().log(Level.SEVERE, e.toString());
 			return null;
 		}
 	}
@@ -379,7 +415,12 @@ public class Deserializer
 		try
 		{
 			data = data.substring(Constants.prefixEffects.length());
-			String[] parts = data.split(div1);
+			String[] parts = data.split(div1).clone();
+			
+			for (int i = 0; i < parts.length; i++)
+			{
+				parts[i] = new String(parts[i]);
+			}
 			
 			for (String effectdata : parts)
 			{
@@ -389,6 +430,7 @@ public class Deserializer
 		}
 		catch (Exception e)
 		{
+			Bukkit.getLogger().log(Level.SEVERE, e.toString());
 			effects.clear();
 		}
 		

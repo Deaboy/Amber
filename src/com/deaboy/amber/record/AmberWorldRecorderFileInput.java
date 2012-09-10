@@ -77,7 +77,6 @@ public class AmberWorldRecorderFileInput implements Closeable
 
 	/**
 	 * Reads the next line from the input stream
-	 * @throws IOException 
 	 */
 	public String read()
 	{
@@ -85,7 +84,9 @@ public class AmberWorldRecorderFileInput implements Closeable
 		{
 			try
 			{
-				return input.readLine();
+				String data = new String(input.readLine());
+				System.gc();
+				return data;
 			}
 			catch (IOException e)
 			{

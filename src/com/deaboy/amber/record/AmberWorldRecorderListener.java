@@ -1,5 +1,7 @@
 package com.deaboy.amber.record;
 
+import java.util.logging.Level;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.Cancellable;
@@ -39,6 +41,12 @@ public class AmberWorldRecorderListener implements Listener
 		if (Amber.getWorldRecorder(world).isRecording())
 		{
 			Amber.getWorldRecorder(world).saveBlock(e.getBlock());
+			if (e instanceof BlockFromToEvent)
+			{
+				Amber.getWorldRecorder(world).saveBlock(((BlockFromToEvent) e).getToBlock());
+			}
+			Bukkit.getLogger().log(Level.INFO, "Saved block: " + e.getBlock().getType().name());
+			Bukkit.getLogger().log(Level.INFO, "   event: " + e.getEventName());
 		}
 		else if (Amber.getWorldRecorder(world).isRestoring())
 		{
