@@ -98,32 +98,32 @@ public class Serializer
 		
 		switch (block.getType())
 		{
-		case BREWING_STAND:	data += ((BrewingStand) block).getBrewingTime() + div1;
+		case BREWING_STAND:	data += ((BrewingStand) block.getState()).getBrewingTime() + div1;
 							data += Constants.prefixInventory;
-							data += serializeItemStack(((BrewingStand) block).getInventory().getContents()); //serializeItemStack includes a div1
+							data += serializeItemStack(((BrewingStand) block.getState()).getInventory().getContents()); //serializeItemStack includes a div1
 							break;
 		case CHEST:			data += Constants.prefixInventory;
-							data += serializeItemStack(((Chest) block).getBlockInventory().getContents()); //serializeItemStack includes a div1
+							data += serializeItemStack(((Chest) block.getState()).getBlockInventory().getContents()); //serializeItemStack includes a div1
 							break;
-		case MOB_SPAWNER:	data += ((CreatureSpawner) block).getSpawnedType().getTypeId() + div1;
-							data += ((CreatureSpawner) block).getDelay() + div1;
+		case MOB_SPAWNER:	data += ((CreatureSpawner) block.getState()).getSpawnedType().getTypeId() + div1;
+							data += ((CreatureSpawner) block.getState()).getDelay() + div1;
 							break;
 		case DISPENSER:		data += Constants.prefixInventory;
-							data += serializeItemStack(((Dispenser) block).getInventory().getContents()); //serializeItemStack includes a div1
+							data += serializeItemStack(((Dispenser) block.getState()).getInventory().getContents()); //serializeItemStack includes a div1
 							break;
-		case FURNACE:		data += ((Furnace) block).getBurnTime() + div1;
-							data += ((Furnace) block).getCookTime() + div1;
+		case FURNACE:		data += ((Furnace) block.getState()).getBurnTime() + div1;
+							data += ((Furnace) block.getState()).getCookTime() + div1;
 							data += Constants.prefixInventory;
-							data += serializeItemStack(((Furnace) block).getInventory().getContents());
+							data += serializeItemStack(((Furnace) block.getState()).getInventory().getContents());
 							break;
-		case JUKEBOX:		data += ((Jukebox) block).getPlaying().getId() + div1;
+		case JUKEBOX:		data += ((Jukebox) block.getState()).getPlaying().getId() + div1;
 							break;
-		case NOTE_BLOCK:	data += ((NoteBlock) block).getRawNote() + div1;;
+		case NOTE_BLOCK:	data += ((NoteBlock) block.getState()).getRawNote() + div1;;
 							break;
-		case SIGN:			data += ((Sign) block).getLine(0) + div1;
-							data += ((Sign) block).getLine(1) + div1;
-							data += ((Sign) block).getLine(2) + div1;
-							data += ((Sign) block).getLine(3) + div1;
+		case SIGN:			data += ((Sign) block.getState()).getLine(0) + div1;
+							data += ((Sign) block.getState()).getLine(1) + div1;
+							data += ((Sign) block.getState()).getLine(2) + div1;
+							data += ((Sign) block.getState()).getLine(3) + div1;
 							break;
 		default:			break;
 		}

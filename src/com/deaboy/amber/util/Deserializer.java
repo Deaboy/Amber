@@ -238,7 +238,6 @@ public class Deserializer
 					Float.parseFloat(parts[7]));
 			
 			entity = Bukkit.getWorld(parts[2]).spawnEntity(location, type);
-			
 			entity.setVelocity(new Vector(Double.parseDouble(parts[8]), Double.parseDouble(parts[9]), Double.parseDouble(parts[10])));
 			
 			if (entity instanceof LivingEntity)

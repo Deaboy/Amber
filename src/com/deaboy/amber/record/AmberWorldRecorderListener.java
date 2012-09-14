@@ -40,7 +40,7 @@ public class AmberWorldRecorderListener implements Listener
 		}
 		if (Amber.getWorldRecorder(world).isRecording())
 		{
-			Amber.getWorldRecorder(world).saveBlock(e.getBlock());
+			Amber.getWorldRecorder(world).saveBlock(world.getBlockAt(e.getBlock().getLocation()));
 			if (e instanceof BlockFromToEvent)
 			{
 				Amber.getWorldRecorder(world).saveBlock(((BlockFromToEvent) e).getToBlock());
