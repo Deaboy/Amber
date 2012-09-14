@@ -84,8 +84,7 @@ public class AmberWorldRecorderFileInput implements Closeable
 		{
 			try
 			{
-				String data = new String(input.readLine());
-				System.gc();
+				String data = input.readLine();
 				return data;
 			}
 			catch (IOException e)

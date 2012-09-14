@@ -2,6 +2,7 @@ package com.deaboy.amber.record;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -9,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.Listener;
 
 import com.deaboy.amber.Amber;
@@ -27,7 +29,7 @@ public class AmberWorldRecorder implements Listener
 	private Status status;
 	
 	private int schedule;
-	private static final short apt = 500; // ACTIONS PER TICK
+	private static final int apt = 500; // ACTIONS PER TICK
 
 	private List<TinyBlockLoc> blockLocs = new ArrayList<TinyBlockLoc>();
 
@@ -85,6 +87,10 @@ public class AmberWorldRecorder implements Listener
 		
 		for (Entity e : world.getEntities())
 		{
+			if (e.getType() == EntityType.PLAYER)
+			{
+				continue;
+			}
 			String data = Serializer.serializeEntity(e);
 			output.write(data);
 		}
@@ -109,6 +115,10 @@ public class AmberWorldRecorder implements Listener
 		
 		for (Entity e : world.getEntities())
 		{
+			if (e.getType() == EntityType.PLAYER)
+			{
+				continue;
+			}
 			e.remove();
 		}
 		
@@ -123,6 +133,7 @@ public class AmberWorldRecorder implements Listener
 	
 	public void stopRestoring()
 	{
+		Bukkit.getLogger().log(Level.INFO, "stopping restoring...");
 		if (status == Status.RESTORING)
 		{
 			status = Status.IDLE;
@@ -135,11 +146,12 @@ public class AmberWorldRecorder implements Listener
 		listener.stopListening();
 		
 		Bukkit.getScheduler().cancelTask(schedule);
+		Bukkit.getLogger().log(Level.INFO, "restoration complete");
 	}
 	
 	public void restoreStep()
 	{
-		short step = apt;
+		int step = apt;
 		
 		while (step > 0)
 		{
@@ -153,16 +165,19 @@ public class AmberWorldRecorder implements Listener
 			
 			if (data.startsWith(Constants.prefixWorld))
 			{
+				Bukkit.getLogger().log(Level.INFO, "Restoring World");
 				Deserializer.deserializeWorld(data);
 				step--;
 			}
 			else if (data.startsWith(Constants.prefixEntity))
 			{
+				Bukkit.getLogger().log(Level.INFO, "Restoring entity");
 				Deserializer.deserializeEntity(data);
 				step--;
 			}
 			else if (data.startsWith(Constants.prefixBlock))
 			{
+				Bukkit.getLogger().log(Level.INFO, "Restoring block");
 				Deserializer.deserializeBlock(data);
 				step--;
 			}

@@ -159,7 +159,7 @@ public class Serializer
 			case CREEPER:	data += ((Creeper) entity).isPowered() + div1; // 14
 							break;
 			case ENDERMAN:	data += ((Enderman) entity).getCarriedMaterial().getItemTypeId() + div1; // 14
-							data += ((Enderman) entity).getCarriedMaterial().getData(); // 
+							data += ((Enderman) entity).getCarriedMaterial().getData() + div1; // 
 							break;
 			case SLIME:		data += ((Slime) entity).getSize() + div1; // 14
 							break;
