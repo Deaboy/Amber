@@ -12,7 +12,6 @@ import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
@@ -149,20 +148,14 @@ public class Deserializer
 			{
 				return;
 			}
-			Block block = world.getBlockAt(Integer.parseInt(parts[3]), Integer.parseInt(parts[4]), Integer.parseInt(parts[5]));
-			if (block == null)
-			{
-				return;
-			}
-			
-			BlockState backup = block.getState();
+			BlockState block = world.getBlockAt(Integer.parseInt(parts[3]), Integer.parseInt(parts[4]), Integer.parseInt(parts[5])).getState();
 			
 			try
 			{
 				Material type = Material.getMaterial(Integer.parseInt(parts[0]));
 				
 				block.setType(type);
-				block.setData(Byte.parseByte(parts[1]));
+				block.setRawData(Byte.parseByte(parts[1]));
 				
 				// USE ONLY PARTS VALUES > 5
 				
@@ -196,14 +189,13 @@ public class Deserializer
 			}
 			catch (Exception e)
 			{
-				Bukkit.getLogger().log(Level.SEVERE, e.toString());
-				block.setTypeId(backup.getType().getId());
-				block.setData(backup.getData().getData());
+				e.printStackTrace();
+				return;
 			}
 		}
 		catch (Exception e)
 		{
-			Bukkit.getLogger().log(Level.SEVERE, e.toString());
+			e.printStackTrace();
 			return;
 		}
 	}
