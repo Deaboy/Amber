@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CreatureSpawner;
@@ -85,7 +85,7 @@ public class Serializer
 	 * @param block The block state to serialize
 	 * @return Serialized version of the block
 	 */
-	public static String serializeBlock(Block block)
+	public static String serializeBlock(BlockState block)
 	{
 		String data = Constants.prefixBlock;
 		

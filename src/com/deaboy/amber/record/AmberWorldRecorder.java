@@ -202,7 +202,7 @@ public class AmberWorldRecorder implements Listener
 		
 		blockLocs.add(new TinyBlockLoc(block.getLocation()));
 		
-		String data = Serializer.serializeBlock(block);
+		String data = Serializer.serializeBlock(block.getState());
 		output.write(data);
 		
 		if (block.getType() == Material.CHEST) // Check if double chest, then save the other one too.
