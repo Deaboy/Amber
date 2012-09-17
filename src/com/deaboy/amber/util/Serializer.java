@@ -131,6 +131,20 @@ public class Serializer
 		}
 		return data;
 	}
+	
+	public static String serializeAirBlock(Location loc)
+	{
+		String data = Constants.prefixBlock;
+		
+		data += "0" + div1;
+		data += "0" + div1;
+		data += loc.getWorld().getName() + div1;
+		data += loc.getBlockX() + div1;
+		data += loc.getBlockY() + div1;
+		data += loc.getBlockZ() + div1;
+		
+		return data;
+	}
 
 	public static String serializeEntity(Entity entity)
 	{

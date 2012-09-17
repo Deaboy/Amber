@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.inventory.*;
+import org.bukkit.event.entity.*;
 
 import com.deaboy.amber.Amber;
 
@@ -57,20 +58,30 @@ public class AmberWorldRecorderListener implements Listener
 		}
 		if (Amber.getWorldRecorder(world).isRecording())
 		{
-			BlockState block;
+			BlockState block = null;
 			if (e instanceof BlockEvent)
 				block = ((BlockEvent) e).getBlock().getState();
-			else if (e instanceof BlockPlaceEvent)
+			if (e instanceof BlockPlaceEvent)
 				block = ((BlockPlaceEvent) e).getBlockReplacedState();
-			else if (e instanceof BlockFromToEvent)
+			if (e instanceof BlockFromToEvent)
 				block = ((BlockFromToEvent) e).getToBlock().getState();
-			else if (e instanceof PlayerInteractEvent)
+			if (e instanceof BlockPhysicsEvent)
+				block = ((BlockPhysicsEvent) e).getBlock().getState();
+			if (e instanceof PlayerBucketEmptyEvent)
+				block = ((PlayerBucketEmptyEvent) e).getBlockClicked().getRelative(((PlayerBucketEmptyEvent) e).getBlockFace()).getState();
+			if (e instanceof PlayerBucketFillEvent)
+				block = ((PlayerBucketFillEvent) e).getBlockClicked().getState();
+			if (e instanceof EntityInteractEvent)
+				block = ((EntityInteractEvent) e).getBlock().getState();
+			if (e instanceof PlayerInteractEvent)
 				if (((PlayerInteractEvent) e).getClickedBlock() == null)
 					return;
 				else
 					block = ((PlayerInteractEvent) e).getClickedBlock().getState();
-			else
+			if (block == null)
+			{
 				return;
+			}
 			if (Amber.getWorldRecorder(world).saveBlock(block))
 			{
 				Bukkit.getLogger().log(Level.INFO, "Saved block: " + block.getType().name());
@@ -192,4 +203,21 @@ public class AmberWorldRecorderListener implements Listener
 		onEvent(e);
 	}
 
+	@EventHandler
+	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent e)
+	{
+		onEvent(e);
+	}
+
+	@EventHandler
+	public void onPlayerBucketFill(PlayerBucketFillEvent e)
+	{
+		onEvent(e);
+	}
+	
+	@EventHandler
+	public void onEntityInteract(EntityInteractEvent e)
+	{
+		onEvent(e);
+	}
 }
