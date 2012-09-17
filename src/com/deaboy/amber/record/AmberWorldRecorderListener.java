@@ -71,9 +71,11 @@ public class AmberWorldRecorderListener implements Listener
 					block = ((PlayerInteractEvent) e).getClickedBlock().getState();
 			else
 				return;
-			Amber.getWorldRecorder(world).saveBlock(block);
-			Bukkit.getLogger().log(Level.INFO, "Saved block: " + block.getType().name());
-			Bukkit.getLogger().log(Level.INFO, "   event: " + e.getEventName());
+			if (Amber.getWorldRecorder(world).saveBlock(block))
+			{
+				Bukkit.getLogger().log(Level.INFO, "Saved block: " + block.getType().name());
+				Bukkit.getLogger().log(Level.INFO, "   event: " + e.getEventName());
+			}
 		}
 		else if (Amber.getWorldRecorder(world).isRestoring())
 		{

@@ -85,7 +85,7 @@ public class Serializer
 	 * @param block The block state to serialize
 	 * @return Serialized version of the block
 	 */
-	public static String serializeBlock(BlockState block)
+	public static String serializeBlockState(BlockState block)
 	{
 		String data = Constants.prefixBlock;
 		
