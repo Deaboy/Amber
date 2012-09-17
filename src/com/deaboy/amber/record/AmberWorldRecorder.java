@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Listener;
@@ -189,7 +189,7 @@ public class AmberWorldRecorder implements Listener
 		}
 	}
 	
-	public boolean saveBlock(Block block)
+	public boolean saveBlock(BlockState block)
 	{
 		if (output == null)
 		{
@@ -202,17 +202,17 @@ public class AmberWorldRecorder implements Listener
 		
 		blockLocs.add(new TinyBlockLoc(block.getLocation()));
 		
-		String data = Serializer.serializeBlock(block.getState());
+		String data = Serializer.serializeBlock(block);
 		output.write(data);
 		
 		if (block.getType() == Material.CHEST) // Check if double chest, then save the other one too.
 		{
-			Block block2;
+			BlockState block2;
 			
-			if ((block2 = world.getBlockAt(block.getX()+1, block.getY(), block.getZ())).getType() == Material.CHEST
-					|| (block2 = world.getBlockAt(block.getX()-1, block.getY(), block.getZ())).getType() == Material.CHEST
-					|| (block2 = world.getBlockAt(block.getX(), block.getY(), block.getZ()+1)).getType() == Material.CHEST
-					|| (block2 = world.getBlockAt(block.getX(), block.getY(), block.getZ()-1)).getType() == Material.CHEST)
+			if ((block2 = world.getBlockAt(block.getX()+1, block.getY(), block.getZ()).getState()).getType() == Material.CHEST
+					|| (block2 = world.getBlockAt(block.getX()-1, block.getY(), block.getZ()).getState()).getType() == Material.CHEST
+					|| (block2 = world.getBlockAt(block.getX(), block.getY(), block.getZ()+1).getState()).getType() == Material.CHEST
+					|| (block2 = world.getBlockAt(block.getX(), block.getY(), block.getZ()-1).getState()).getType() == Material.CHEST)
 				saveBlock(block2);
 		}
 		

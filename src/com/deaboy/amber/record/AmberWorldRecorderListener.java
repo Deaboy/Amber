@@ -4,11 +4,14 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.Event;
 import org.bukkit.event.block.*;
+import org.bukkit.event.player.*;
 import org.bukkit.event.inventory.*;
 
 import com.deaboy.amber.Amber;
@@ -32,20 +35,44 @@ public class AmberWorldRecorderListener implements Listener
 		HandlerList.unregisterAll(this);
 	}
 	
-	public void onBlockEvent(BlockEvent e)
+	public void onEvent(Event e)
 	{
-		if (e.getBlock().getWorld() != world)
+		if (e instanceof PlayerEvent)
+		{
+			if (((PlayerEvent) e).getPlayer().getWorld() != world)
+			{
+				return;
+			}
+		}
+		else if (e instanceof BlockEvent)
+		{
+			if (((BlockEvent) e).getBlock().getWorld() != world)
+			{
+				return;
+			}
+		}
+		else
 		{
 			return;
 		}
 		if (Amber.getWorldRecorder(world).isRecording())
 		{
-			Amber.getWorldRecorder(world).saveBlock(world.getBlockAt(e.getBlock().getLocation()));
-			if (e instanceof BlockFromToEvent)
-			{
-				Amber.getWorldRecorder(world).saveBlock(((BlockFromToEvent) e).getToBlock());
-			}
-			Bukkit.getLogger().log(Level.INFO, "Saved block: " + e.getBlock().getType().name());
+			BlockState block;
+			if (e instanceof BlockEvent)
+				block = ((BlockEvent) e).getBlock().getState();
+			else if (e instanceof BlockPlaceEvent)
+				block = ((BlockPlaceEvent) e).getBlockReplacedState();
+			else if (e instanceof BlockFromToEvent)
+				block = ((BlockFromToEvent) e).getToBlock().getState();
+			else if (e instanceof PlayerInteractEvent)
+				if (((PlayerInteractEvent) e).getClickedBlock() == null)
+					return;
+				else
+					block = ((PlayerInteractEvent) e).getClickedBlock().getState();
+			else
+				return;
+			Amber.getWorldRecorder(world).saveBlock(block);
+			Bukkit.getLogger().log(Level.INFO, "Saved block: " + block.getType().name());
 			Bukkit.getLogger().log(Level.INFO, "   event: " + e.getEventName());
 		}
 		else if (Amber.getWorldRecorder(world).isRestoring())
@@ -64,97 +91,103 @@ public class AmberWorldRecorderListener implements Listener
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onBlockBurn(BlockBurnEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onBlockDispense(BlockDispenseEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onBlockFade(BlockFadeEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onBlockFromTo(BlockFromToEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onBlockGrow(BlockGrowEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onBlockIgnite(BlockIgniteEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onBlockPhysicsEvent(BlockPhysicsEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onBlockPistonExtend(BlockPistonExtendEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onBlockPistonRetract(BlockPistonRetractEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onLeavesDecay(LeavesDecayEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onSignChange(SignChangeEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onBrew(BrewEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onFurnaceBurn(FurnaceBurnEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
 	}
 
 	@EventHandler
 	public void onFurnaceSmelt(FurnaceSmeltEvent e)
 	{
-		onBlockEvent(e);
+		onEvent(e);
+	}
+	
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent e)
+	{
+		onEvent(e);
 	}
 
 }
