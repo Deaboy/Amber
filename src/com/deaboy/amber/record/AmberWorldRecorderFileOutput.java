@@ -96,6 +96,7 @@ public class AmberWorldRecorderFileOutput implements Closeable
 		if (output != null)
 		{
 			output.close();
+			output = null;
 		}
 		file = null;
 	}

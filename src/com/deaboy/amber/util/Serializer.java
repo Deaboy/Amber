@@ -90,7 +90,7 @@ public class Serializer
 		String data = Constants.prefixBlock;
 		
 		data += block.getTypeId() + div1;
-		data += block.getData() + div1;
+		data += block.getData().getData() + div1;
 		data += block.getWorld().getName() + div1;
 		data += block.getX() + div1;
 		data += block.getY() + div1;
@@ -120,14 +120,15 @@ public class Serializer
 							break;
 		case NOTE_BLOCK:	data += ((NoteBlock) block).getRawNote() + div1;;
 							break;
-		case SIGN:			data += ((Sign) block).getLine(0) + div1;
+		case WALL_SIGN:
+		case SIGN_POST:		data += ((Sign) block).getLine(0) + div1;
 							data += ((Sign) block).getLine(1) + div1;
 							data += ((Sign) block).getLine(2) + div1;
 							data += ((Sign) block).getLine(3) + div1;
+							data += " " + div1; // This space prevents Java from ignoring any blank lines.
 							break;
 		default:			break;
 		}
-		
 		return data;
 	}
 
@@ -224,7 +225,7 @@ public class Serializer
 
 	public static String serializeItemStack(ItemStack ... stack)
 	{
-		String data = Constants.prefixInventory;
+		String data = new String();
 		
 		for (int slot = 0; slot < stack.length; slot++)
 		{

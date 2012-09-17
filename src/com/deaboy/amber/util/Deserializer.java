@@ -12,6 +12,7 @@ import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
@@ -148,44 +149,48 @@ public class Deserializer
 			{
 				return;
 			}
-			BlockState block = world.getBlockAt(Integer.parseInt(parts[3]), Integer.parseInt(parts[4]), Integer.parseInt(parts[5])).getState();
+			Block block = world.getBlockAt(Integer.parseInt(parts[3]), Integer.parseInt(parts[4]), Integer.parseInt(parts[5]));
 			
 			try
 			{
 				Material type = Material.getMaterial(Integer.parseInt(parts[0]));
 				
 				block.setType(type);
-				block.setRawData(Byte.parseByte(parts[1]));
+				block.setData(Byte.parseByte(parts[1]));
+				BlockState state = block.getState();
 				
 				// USE ONLY PARTS VALUES > 5
 				
-				switch (block.getType())
+				switch (state.getType())
 				{
-				case BREWING_STAND:	((BrewingStand) block).setBrewingTime(Integer.parseInt(parts[6]));
-									((BrewingStand) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
+				case BREWING_STAND:	((BrewingStand) state).setBrewingTime(Integer.parseInt(parts[6]));
+									((BrewingStand) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
-				case CHEST:			((Chest) block).getBlockInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
+				case CHEST:			((Chest) state).getBlockInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
-				case MOB_SPAWNER:	((CreatureSpawner) block).setSpawnedType(EntityType.fromId(Integer.parseInt(parts[6])));
-									((CreatureSpawner) block).setDelay(Integer.parseInt(parts[7]));
+				case MOB_SPAWNER:	((CreatureSpawner) state).setSpawnedType(EntityType.fromId(Integer.parseInt(parts[6])));
+									((CreatureSpawner) state).setDelay(Integer.parseInt(parts[7]));
 									break;
-				case DISPENSER:		((Dispenser) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
+				case DISPENSER:		((Dispenser) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
-				case FURNACE:		((Furnace) block).setBurnTime(Short.parseShort(parts[6]));
-									((Furnace) block).setCookTime(Short.parseShort(parts[7]));
-									((Furnace) block).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
+				case FURNACE:		((Furnace) state).setBurnTime(Short.parseShort(parts[6]));
+									((Furnace) state).setCookTime(Short.parseShort(parts[7]));
+									((Furnace) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
-				case JUKEBOX:		((Jukebox) block).setPlaying(Material.getMaterial(Integer.parseInt(parts[6])));
+				case JUKEBOX:		((Jukebox) state).setPlaying(Material.getMaterial(Integer.parseInt(parts[6])));
 									break;
-				case NOTE_BLOCK:	((NoteBlock) block).setRawNote(Byte.parseByte(parts[6]));
+				case NOTE_BLOCK:	((NoteBlock) state).setRawNote(Byte.parseByte(parts[6]));
 									break;
-				case SIGN:			((Sign) block).setLine(0, parts[6]);
-									((Sign) block).setLine(1, parts[7]);
-									((Sign) block).setLine(2, parts[8]);
-									((Sign) block).setLine(3, parts[9]);
+				case WALL_SIGN:
+				case SIGN_POST:		((Sign) state).setLine(0, parts[6]);
+									((Sign) state).setLine(1, parts[7]);
+									((Sign) state).setLine(2, parts[8]);
+									((Sign) state).setLine(3, parts[9]);
 									break;
 				default:			break;
 				}
+				
+				state.update();
 			}
 			catch (Exception e)
 			{
@@ -307,7 +312,7 @@ public class Deserializer
 		}
 		catch (Exception e)
 		{
-			Bukkit.getLogger().log(Level.SEVERE, e.toString());
+			e.printStackTrace();
 			if (entity != null)
 			{
 				entity.remove();
@@ -335,7 +340,10 @@ public class Deserializer
 		for (int slot = 0; slot < parts.length; slot++)
 		{
 			String itemData = parts[slot];
-			
+			if (itemData.isEmpty())
+			{
+				continue;
+			}
 			try
 			{
 				String[] itemParts = itemData.split(div2);
@@ -362,7 +370,7 @@ public class Deserializer
 				items[slot] = item;
 			}
 			catch (Exception e) {
-				Bukkit.getLogger().log(Level.SEVERE, e.toString());
+				e.printStackTrace();
 				return null;
 			}
 		}
@@ -394,7 +402,7 @@ public class Deserializer
 		}
 		catch (Exception e)
 		{
-			Bukkit.getLogger().log(Level.SEVERE, e.toString());
+			e.printStackTrace();
 			return null;
 		}
 	}

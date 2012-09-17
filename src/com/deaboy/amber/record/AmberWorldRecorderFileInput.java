@@ -107,6 +107,7 @@ public class AmberWorldRecorderFileInput implements Closeable
 			try
 			{
 				input.close();
+				input = null;
 			}
 			catch (IOException e)
 			{
