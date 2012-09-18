@@ -19,6 +19,8 @@ import org.bukkit.entity.Cow;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.MushroomCow;
@@ -131,20 +133,6 @@ public class Serializer
 		}
 		return data;
 	}
-	
-	public static String serializeAirBlock(Location loc)
-	{
-		String data = Constants.prefixBlock;
-		
-		data += "0" + div1;
-		data += "0" + div1;
-		data += loc.getWorld().getName() + div1;
-		data += loc.getBlockX() + div1;
-		data += loc.getBlockY() + div1;
-		data += loc.getBlockZ() + div1;
-		
-		return data;
-	}
 
 	public static String serializeEntity(Entity entity)
 	{
@@ -162,7 +150,12 @@ public class Serializer
 		data += entity.getVelocity().getY() + div1;		// 9
 		data += entity.getVelocity().getZ() + div1;		// 10
 		
-		if (entity instanceof LivingEntity)
+		if (entity.getType() == EntityType.DROPPED_ITEM)
+		{
+			data += Constants.prefixInventory;
+			data += serializeItemStack(((Item) entity).getItemStack());
+		}
+		else if (entity instanceof LivingEntity)
 		{
 			data += ((LivingEntity) entity).getHealth() + div1; // 11
 			data += ((LivingEntity) entity).getRemainingAir() + div1; // 12
@@ -236,6 +229,7 @@ public class Serializer
 		
 		return data;
 	}
+
 
 	public static String serializeItemStack(ItemStack ... stack)
 	{

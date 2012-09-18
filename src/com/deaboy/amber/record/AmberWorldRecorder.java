@@ -188,25 +188,7 @@ public class AmberWorldRecorder implements Listener
 			
 		}
 	}
-	
-	public boolean saveAirBlock(Location loc)
-	{
-		if (output == null)
-		{
-			return false;
-		}
-		if (locationAlreadySaved(loc))
-		{
-			return false;
-		}
-		
-		blockLocs.add(new TinyBlockLoc(loc));
-		
-		String data = Serializer.serializeAirBlock(loc);
-		output.write(data);
-		return true;
-	}
-	
+
 	public boolean saveBlock(BlockState block)
 	{
 		if (output == null)

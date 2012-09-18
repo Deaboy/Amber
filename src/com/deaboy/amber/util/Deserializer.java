@@ -205,6 +205,12 @@ public class Deserializer
 		}
 	}
 
+	/**
+	 * Deserializes an entity's data from a string and spawns it
+	 * in the world.
+	 * @param data The serialized entity
+	 * @return A pointer to the resulting entity, or null if it failed.
+	 */
 	public static Entity deserializeEntity(String data)
 	{
 		Entity entity = null;
@@ -233,6 +239,11 @@ public class Deserializer
 					Double.parseDouble(parts[5]),
 					Float.parseFloat(parts[6]),
 					Float.parseFloat(parts[7]));
+			
+			if (type == EntityType.DROPPED_ITEM)
+			{
+				entity = Bukkit.getWorld(parts[2]).dropItem(location, deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory)))[0]);
+			}
 			
 			entity = Bukkit.getWorld(parts[2]).spawnEntity(location, type);
 			entity.setVelocity(new Vector(Double.parseDouble(parts[8]), Double.parseDouble(parts[9]), Double.parseDouble(parts[10])));
