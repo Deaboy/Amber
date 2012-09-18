@@ -102,7 +102,8 @@ public class AmberWorldRecorder implements Listener
 	
 	public void startRestoring()
 	{
-		if (status == Status.IDLE)
+		stopRecording();
+		if (status == Status.IDLE || status == Status.RECORDING)
 		{
 			status = Status.RESTORING;
 		}
