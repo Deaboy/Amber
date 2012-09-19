@@ -221,6 +221,7 @@ public class Deserializer
 	public static Entity deserializeEntity(String data)
 	{
 		Entity entity = null;
+		int index = 0;
 		
 		try
 		{
@@ -232,7 +233,7 @@ public class Deserializer
 				parts[i] = new String(data.split(div1).clone()[i]);
 			}
 			
-			EntityType type = EntityType.fromId(Integer.parseInt(parts[1]));
+			EntityType type = EntityType.fromId(Integer.parseInt(parts[++index]));
 			
 			if (type == null)
 			{
@@ -240,12 +241,12 @@ public class Deserializer
 			}
 			
 			Location location = new Location(
-					Bukkit.getWorld(parts[2]),
-					Double.parseDouble(parts[3]),
-					Double.parseDouble(parts[4]),
-					Double.parseDouble(parts[5]),
-					Float.parseFloat(parts[6]),
-					Float.parseFloat(parts[7]));
+					Bukkit.getWorld(parts[++index]),
+					Double.parseDouble(parts[++index]),
+					Double.parseDouble(parts[++index]),
+					Double.parseDouble(parts[++index]),
+					Float.parseFloat(parts[++index]),
+					Float.parseFloat(parts[++index]));
 			
 			if (type == EntityType.DROPPED_ITEM)
 			{
@@ -256,59 +257,76 @@ public class Deserializer
 				entity = Bukkit.getWorld(parts[2]).spawnEntity(location, type);
 			}
 			
-			entity.setVelocity(new Vector(Double.parseDouble(parts[8]), Double.parseDouble(parts[9]), Double.parseDouble(parts[10])));
-			entity.setFireTicks(Integer.parseInt(parts[11]));
-			entity.setFallDistance(Float.parseFloat(parts[12]));
+			entity.setVelocity(new Vector(Double.parseDouble(parts[++index]), Double.parseDouble(parts[++index]), Double.parseDouble(parts[++index])));
+			entity.setFireTicks(Integer.parseInt(parts[++index]));
+			entity.setFallDistance(Float.parseFloat(parts[++index]));
 			
 			if (entity instanceof LivingEntity)
 			{
-				((LivingEntity) entity).setHealth(Integer.parseInt(parts[13]));
-				((LivingEntity) entity).setRemainingAir(Integer.parseInt(parts[14]));
+				// Tamed Wolves have higher health than other LivingEntities.
+				// If you don't do this, you'll get an exception.
+				if (entity.getType() == EntityType.WOLF)
+				{
+					((Wolf) entity).setHealth(Integer.parseInt(parts[++index])*2/5);
+				}
+				else
+				{
+					((LivingEntity) entity).setHealth(Integer.parseInt(parts[++index]));
+				}
+				((LivingEntity) entity).setRemainingAir(Integer.parseInt(parts[++index]));
 				
 				switch (entity.getType())
 				{
 				// HOSTILE
-				case CREEPER:	((Creeper) entity).setPowered(Boolean.parseBoolean(parts[15])); // 14
+				case CREEPER:	((Creeper) entity).setPowered(Boolean.parseBoolean(parts[++index])); // 15
 								break;
-				case ENDERMAN:	((Enderman) entity).setCarriedMaterial(new MaterialData(Integer.parseInt(parts[15]), Byte.parseByte(parts[16]))); // 14
+				case ENDERMAN:	((Enderman) entity).setCarriedMaterial(new MaterialData(Integer.parseInt(parts[++index]), Byte.parseByte(parts[++index]))); // 15 & 16
 								break;
-				case SLIME:		((Slime) entity).setSize(Integer.parseInt(parts[15])); // 14
+				case SLIME:		((Slime) entity).setSize(Integer.parseInt(parts[++index])); // 15
 								break;
 				// NETHER
-				case MAGMA_CUBE:((MagmaCube) entity).setSize(Integer.parseInt(parts[15])); // 14
+				case MAGMA_CUBE:((MagmaCube) entity).setSize(Integer.parseInt(parts[++index])); // 15
 								break;
 				// PASSIVE
-				case PIG:		((Pig) entity).setAge(Integer.parseInt(parts[15])); // 14
-								((Pig) entity).setBreed(Boolean.parseBoolean(parts[16])); // 15
-								((Pig) entity).setSaddle(Boolean.parseBoolean(parts[17])); // 16
+				case PIG:		((Pig) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Pig) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
+								((Pig) entity).setSaddle(Boolean.parseBoolean(parts[++index])); // 17
 								break;
-				case COW:		((Cow) entity).setAge(Integer.parseInt(parts[15])); // 14
-								((Cow) entity).setBreed(Boolean.parseBoolean(parts[16])); // 15
+				case COW:		((Cow) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Cow) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
 								break;
-				case MUSHROOM_COW:((MushroomCow) entity).setAge(Integer.parseInt(parts[15])); // 14
-								((MushroomCow) entity).setBreed(Boolean.parseBoolean(parts[16])); // 15
+				case MUSHROOM_COW:((MushroomCow) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((MushroomCow) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
 								break;
-				case CHICKEN:	((Chicken) entity).setAge(Integer.parseInt(parts[15])); // 14
-								((Chicken) entity).setBreed(Boolean.parseBoolean(parts[16])); // 15
+				case CHICKEN:	((Chicken) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Chicken) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
 								break;
-				case SHEEP:		((Sheep) entity).setAge(Integer.parseInt(parts[15])); // 14
-								((Sheep) entity).setBreed(Boolean.parseBoolean(parts[16])); // 15
-								((Sheep) entity).setColor(DyeColor.getByData(Byte.parseByte(parts[17]))); // 16
+				case SHEEP:		((Sheep) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Sheep) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
+								((Sheep) entity).setColor(DyeColor.getByData(Byte.parseByte(parts[++index]))); // 17
 								break;
-				case WOLF:		((Wolf) entity).setAge(Integer.parseInt(parts[15])); // 14
-								((Wolf) entity).setBreed(Boolean.parseBoolean(parts[16])); // 15
-								((Wolf) entity).setOwner(parts[17].equalsIgnoreCase("null") ? null : Bukkit.getOfflinePlayer(parts[17])); // 16
-								if (((Wolf) entity).getOwner() != null) ((Wolf) entity).setSitting(Boolean.parseBoolean(parts[18])); // 17
+				case WOLF:		((Wolf) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Wolf) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
+								if (!parts[++index].equals("null"))
+								{
+									((Wolf) entity).setTamed(true);
+									((Wolf) entity).setOwner(Bukkit.getOfflinePlayer(parts[index])); // 17
+									((Wolf) entity).setSitting(Boolean.parseBoolean(parts[++index])); // 18
+								}
 								break;
-				case OCELOT:	((Ocelot) entity).setAge(Integer.parseInt(parts[15])); // 14
-								((Ocelot) entity).setBreed(Boolean.parseBoolean(parts[16])); // 15
-								((Ocelot) entity).setCatType(Type.getType(Integer.parseInt(parts[17]))); // 16
-								((Ocelot) entity).setOwner(parts[18].equalsIgnoreCase("null") ? null : Bukkit.getOfflinePlayer(parts[18])); // 17
-								if (((Ocelot) entity).getOwner() != null) ((Ocelot) entity).setSitting(Boolean.parseBoolean(parts[19])); // 18
+				case OCELOT:	((Ocelot) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Ocelot) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
+								((Ocelot) entity).setCatType(Type.getType(Integer.parseInt(parts[++index]))); // 17
+								if (!parts[++index].equals("null"))
+								{
+									((Ocelot) entity).setTamed(true);
+									((Ocelot) entity).setOwner(Bukkit.getOfflinePlayer(parts[index])); // 18
+									((Ocelot) entity).setSitting(Boolean.parseBoolean(parts[++index])); // 19
+								}
 								break;
-				case VILLAGER:	((Villager) entity).setAge(Integer.parseInt(parts[15])); // 14
-								((Villager) entity).setBreed(Boolean.parseBoolean(parts[16])); // 15
-								((Villager) entity).setProfession(Profession.getProfession(Integer.parseInt(parts[17]))); // 16
+				case VILLAGER:	((Villager) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Villager) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
+								((Villager) entity).setProfession(Profession.getProfession(Integer.parseInt(parts[++index]))); // 17
 								break;
 								
 				default:		break;
@@ -319,16 +337,16 @@ public class Deserializer
 			}
 			else if (entity instanceof Projectile)
 			{
-				((Projectile) entity).setBounce(Boolean.parseBoolean(parts[14]));
+				((Projectile) entity).setBounce(Boolean.parseBoolean(parts[++index]));
 			}
 			else
 			{
 				switch (entity.getType())
 				{
-				case PAINTING:	((Painting) entity).setArt(Art.getById(Integer.parseInt(parts[14])), true);
-								((Painting) entity).setFacingDirection(BlockFace.valueOf(parts[15]), true); // 15
+				case PAINTING:	((Painting) entity).setArt(Art.getById(Integer.parseInt(parts[++index])), true);
+								((Painting) entity).setFacingDirection(BlockFace.valueOf(parts[++index]), true); // 15
 								break;
-				case PRIMED_TNT:((TNTPrimed) entity).setFuseTicks(Integer.parseInt(parts[14]));
+				case PRIMED_TNT:((TNTPrimed) entity).setFuseTicks(Integer.parseInt(parts[++index]));
 								break;
 				default:		break;
 				}

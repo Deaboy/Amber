@@ -156,7 +156,7 @@ public class Serializer
 		if (entity.getType() == EntityType.DROPPED_ITEM)
 		{
 			data += Constants.prefixInventory;
-			data += serializeItemStack(((Item) entity).getItemStack()); // 14+
+			data += serializeItemStack(((Item) entity).getItemStack()); // 13 +
 		}
 		else if (entity instanceof LivingEntity)
 		{
