@@ -147,12 +147,14 @@ public class Deserializer
 		
 		try
 		{
-			World world = Bukkit.getWorld(parts[2]);
+			int index = 1;
+			
+			World world = Bukkit.getWorld(parts[++index]);
 			if (world == null)
 			{
 				return;
 			}
-			Block block = world.getBlockAt(Integer.parseInt(parts[3]), Integer.parseInt(parts[4]), Integer.parseInt(parts[5]));
+			Block block = world.getBlockAt(Integer.parseInt(parts[++index]), Integer.parseInt(parts[++index]), Integer.parseInt(parts[++index]));
 			
 			try
 			{
@@ -166,33 +168,33 @@ public class Deserializer
 				
 				switch (state.getType())
 				{
-				case BREWING_STAND:	((BrewingStand) state).setBrewingTime(Integer.parseInt(parts[6]));
+				case BREWING_STAND:	((BrewingStand) state).setBrewingTime(Integer.parseInt(parts[++index]));
 									((BrewingStand) state).getInventory().clear();
 									((BrewingStand) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
 				case CHEST:			((Chest) state).getInventory().clear();
 									((Chest) state).getBlockInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
-				case MOB_SPAWNER:	((CreatureSpawner) state).setSpawnedType(EntityType.fromId(Integer.parseInt(parts[6])));
-									((CreatureSpawner) state).setDelay(Integer.parseInt(parts[7]));
+				case MOB_SPAWNER:	((CreatureSpawner) state).setSpawnedType(EntityType.fromId(Integer.parseInt(parts[++index])));
+									((CreatureSpawner) state).setDelay(Integer.parseInt(parts[++index]));
 									break;
 				case DISPENSER:		((Dispenser) state).getInventory().clear();
 									((Dispenser) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
-				case FURNACE:		((Furnace) state).setBurnTime(Short.parseShort(parts[6]));
-									((Furnace) state).setCookTime(Short.parseShort(parts[7]));
+				case FURNACE:		((Furnace) state).setBurnTime(Short.parseShort(parts[++index]));
+									((Furnace) state).setCookTime(Short.parseShort(parts[++index]));
 									((Furnace) state).getInventory().clear();
 									((Furnace) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
-				case JUKEBOX:		((Jukebox) state).setPlaying(Material.getMaterial(Integer.parseInt(parts[6])));
+				case JUKEBOX:		((Jukebox) state).setPlaying(Material.getMaterial(Integer.parseInt(parts[++index])));
 									break;
-				case NOTE_BLOCK:	((NoteBlock) state).setRawNote(Byte.parseByte(parts[6]));
+				case NOTE_BLOCK:	((NoteBlock) state).setRawNote(Byte.parseByte(parts[++index]));
 									break;
 				case WALL_SIGN:
-				case SIGN_POST:		((Sign) state).setLine(0, parts[6]);
-									((Sign) state).setLine(1, parts[7]);
-									((Sign) state).setLine(2, parts[8]);
-									((Sign) state).setLine(3, parts[9]);
+				case SIGN_POST:		((Sign) state).setLine(0, parts[++index]);
+									((Sign) state).setLine(1, parts[++index]);
+									((Sign) state).setLine(2, parts[++index]);
+									((Sign) state).setLine(3, parts[++index]);
 									break;
 				default:			break;
 				}

@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -62,15 +63,14 @@ public class AmberWorldRecorderListener implements Listener
 			BlockState block = null;
 			if (e instanceof BlockEvent)
 				block = ((BlockEvent) e).getBlock().getState();
-			else if (e instanceof BlockPlaceEvent)
-			{
+			if (e instanceof BlockBreakEvent)
+				Amber.getWorldRecorder(world).saveTransparentBlocksBelow(block);
 			if (e instanceof BlockPlaceEvent)
-				block = ((BlockPlaceEvent) e).getBlock().getState();
+			{
 				if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL)
 					Amber.getWorldRecorder(world).saveTransparentBlocksBelow(block);
 				block = ((BlockPlaceEvent) e).getBlockReplacedState();
 			}
-			else if (e instanceof BlockFromToEvent)
 			if (e instanceof BlockFromToEvent)
 				block = ((BlockFromToEvent) e).getToBlock().getState();
 			if (e instanceof BlockPhysicsEvent)
@@ -221,6 +221,19 @@ public class AmberWorldRecorderListener implements Listener
 	public void onPlayerBucketFill(PlayerBucketFillEvent e)
 	{
 		onEvent(e);
+	}
+	
+	@EventHandler
+	public void onEntityExplode(EntityExplodeEvent e)
+	{
+		for (Block block : e.blockList())
+		{
+			if (Amber.getWorldRecorder(world).saveBlock(block.getState()))
+			{
+				Bukkit.getLogger().log(Level.INFO, "Saved block: " + block.getType().name());
+				Bukkit.getLogger().log(Level.INFO, "   event: " + e.getEventName());
+			}
+		}
 	}
 	
 	@EventHandler
