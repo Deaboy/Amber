@@ -47,7 +47,7 @@ public class Amber extends JavaPlugin
 		
 		if (recorder.isIdle())
 		{
-			plugin.recorders.get(world).startRecording();
+			recorder.startRecording();
 			return true;
 		}
 		else
@@ -69,7 +69,7 @@ public class Amber extends JavaPlugin
 		
 		if (recorder.isRecording())
 		{
-			plugin.recorders.get(world).stopRecording();
+			recorder.stopRecording();
 			return true;
 		}
 		else
@@ -87,13 +87,11 @@ public class Amber extends JavaPlugin
 			return false;
 		}
 		
-		plugin.recorders.get(world);
-		
 		AmberWorldRecorder recorder = plugin.recorders.get(world);
 		
-		if (recorder.isIdle())
+		if (recorder.isIdle() || recorder.isRecording())
 		{
-			plugin.recorders.get(world).startRestoring();
+			recorder.startRestoring();
 			return true;
 		}
 		else
@@ -111,13 +109,11 @@ public class Amber extends JavaPlugin
 			return false;
 		}
 		
-		plugin.recorders.get(world);
-		
 		AmberWorldRecorder recorder = plugin.recorders.get(world);
 		
 		if (recorder.isRestoring())
 		{
-			plugin.recorders.get(world).stopRestoring();
+			recorder.stopRestoring();
 			return true;
 		}
 		else

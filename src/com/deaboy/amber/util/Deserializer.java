@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.bukkit.Art;
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
 import org.bukkit.DyeColor;
@@ -13,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
@@ -36,6 +38,7 @@ import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Ocelot.Type;
 import org.bukkit.entity.Painting;
 import org.bukkit.entity.Pig;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.TNTPrimed;
@@ -164,17 +167,21 @@ public class Deserializer
 				switch (state.getType())
 				{
 				case BREWING_STAND:	((BrewingStand) state).setBrewingTime(Integer.parseInt(parts[6]));
+									((BrewingStand) state).getInventory().clear();
 									((BrewingStand) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
-				case CHEST:			((Chest) state).getBlockInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
+				case CHEST:			((Chest) state).getInventory().clear();
+									((Chest) state).getBlockInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
 				case MOB_SPAWNER:	((CreatureSpawner) state).setSpawnedType(EntityType.fromId(Integer.parseInt(parts[6])));
 									((CreatureSpawner) state).setDelay(Integer.parseInt(parts[7]));
 									break;
-				case DISPENSER:		((Dispenser) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
+				case DISPENSER:		((Dispenser) state).getInventory().clear();
+									((Dispenser) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
 				case FURNACE:		((Furnace) state).setBurnTime(Short.parseShort(parts[6]));
 									((Furnace) state).setCookTime(Short.parseShort(parts[7]));
+									((Furnace) state).getInventory().clear();
 									((Furnace) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
 				case JUKEBOX:		((Jukebox) state).setPlaying(Material.getMaterial(Integer.parseInt(parts[6])));
@@ -205,9 +212,16 @@ public class Deserializer
 		}
 	}
 
+	/**
+	 * Deserializes an entity's data from a string and spawns it
+	 * in the world.
+	 * @param data The serialized entity
+	 * @return A pointer to the resulting entity, or null if it failed.
+	 */
 	public static Entity deserializeEntity(String data)
 	{
 		Entity entity = null;
+		int index = 0;
 		
 		try
 		{
@@ -219,7 +233,7 @@ public class Deserializer
 				parts[i] = new String(data.split(div1).clone()[i]);
 			}
 			
-			EntityType type = EntityType.fromId(Integer.parseInt(parts[1]));
+			EntityType type = EntityType.fromId(Integer.parseInt(parts[++index]));
 			
 			if (type == null)
 			{
@@ -227,82 +241,105 @@ public class Deserializer
 			}
 			
 			Location location = new Location(
-					Bukkit.getWorld(parts[2]),
-					Double.parseDouble(parts[3]),
-					Double.parseDouble(parts[4]),
-					Double.parseDouble(parts[5]),
-					Float.parseFloat(parts[6]),
-					Float.parseFloat(parts[7]));
+					Bukkit.getWorld(parts[++index]),
+					Double.parseDouble(parts[++index]),
+					Double.parseDouble(parts[++index]),
+					Double.parseDouble(parts[++index]),
+					Float.parseFloat(parts[++index]),
+					Float.parseFloat(parts[++index]));
 			
-			entity = Bukkit.getWorld(parts[2]).spawnEntity(location, type);
-			entity.setVelocity(new Vector(Double.parseDouble(parts[8]), Double.parseDouble(parts[9]), Double.parseDouble(parts[10])));
+			if (type == EntityType.DROPPED_ITEM)
+			{
+				entity = Bukkit.getWorld(parts[2]).dropItem(location, deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory)))[0]);
+			}
+			else
+			{
+				entity = Bukkit.getWorld(parts[2]).spawnEntity(location, type);
+			}
+			
+			entity.setVelocity(new Vector(Double.parseDouble(parts[++index]), Double.parseDouble(parts[++index]), Double.parseDouble(parts[++index])));
+			entity.setFireTicks(Integer.parseInt(parts[++index]));
+			entity.setFallDistance(Float.parseFloat(parts[++index]));
 			
 			if (entity instanceof LivingEntity)
 			{
-				((LivingEntity) entity).setHealth(Integer.parseInt(parts[11]));
-				((LivingEntity) entity).setRemainingAir(Integer.parseInt(parts[12]));
-				((LivingEntity) entity).setFallDistance(Float.parseFloat(parts[13]));
+				int health = Integer.parseInt(parts[++index]);
+				
+				((LivingEntity) entity).setRemainingAir(Integer.parseInt(parts[++index]));
 				
 				switch (entity.getType())
 				{
 				// HOSTILE
-				case CREEPER:	((Creeper) entity).setPowered(Boolean.parseBoolean(parts[14])); // 14
+				case CREEPER:	((Creeper) entity).setPowered(Boolean.parseBoolean(parts[++index])); // 15
 								break;
-				case ENDERMAN:	((Enderman) entity).setCarriedMaterial(new MaterialData(Integer.parseInt(parts[14]), Byte.parseByte(parts[15]))); // 14
+				case ENDERMAN:	((Enderman) entity).setCarriedMaterial(new MaterialData(Integer.parseInt(parts[++index]), Byte.parseByte(parts[++index]))); // 15 & 16
 								break;
-				case SLIME:		((Slime) entity).setSize(Integer.parseInt(parts[14])); // 14
+				case SLIME:		((Slime) entity).setSize(Integer.parseInt(parts[++index])); // 15
 								break;
 				// NETHER
-				case MAGMA_CUBE:((MagmaCube) entity).setSize(Integer.parseInt(parts[14])); // 14
+				case MAGMA_CUBE:((MagmaCube) entity).setSize(Integer.parseInt(parts[++index])); // 15
 								break;
 				// PASSIVE
-				case PIG:		((Pig) entity).setAge(Integer.parseInt(parts[14])); // 14
-								((Pig) entity).setBreed(Boolean.parseBoolean(parts[15])); // 15
-								((Pig) entity).setSaddle(Boolean.parseBoolean(parts[16])); // 16
+				case PIG:		((Pig) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Pig) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
+								((Pig) entity).setSaddle(Boolean.parseBoolean(parts[++index])); // 17
 								break;
-				case COW:		((Cow) entity).setAge(Integer.parseInt(parts[14])); // 14
-								((Cow) entity).setBreed(Boolean.parseBoolean(parts[15])); // 15
+				case COW:		((Cow) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Cow) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
 								break;
-				case MUSHROOM_COW:((MushroomCow) entity).setAge(Integer.parseInt(parts[14])); // 14
-								((MushroomCow) entity).setBreed(Boolean.parseBoolean(parts[15])); // 15
+				case MUSHROOM_COW:((MushroomCow) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((MushroomCow) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
 								break;
-				case CHICKEN:	((Chicken) entity).setAge(Integer.parseInt(parts[14])); // 14
-								((Chicken) entity).setBreed(Boolean.parseBoolean(parts[15])); // 15
+				case CHICKEN:	((Chicken) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Chicken) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
 								break;
-				case SHEEP:		((Sheep) entity).setAge(Integer.parseInt(parts[14])); // 14
-								((Sheep) entity).setBreed(Boolean.parseBoolean(parts[15])); // 15
-								((Sheep) entity).setColor(DyeColor.getByData(Byte.parseByte(parts[16]))); // 16
+				case SHEEP:		((Sheep) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Sheep) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
+								((Sheep) entity).setColor(DyeColor.getByData(Byte.parseByte(parts[++index]))); // 17
 								break;
-				case WOLF:		((Wolf) entity).setAge(Integer.parseInt(parts[14])); // 14
-								((Wolf) entity).setBreed(Boolean.parseBoolean(parts[15])); // 15
-								((Wolf) entity).setOwner(Bukkit.getOfflinePlayer(parts[17])); // 16
-								((Wolf) entity).setSitting(Boolean.parseBoolean(parts[18])); // 17
+				case WOLF:		((Wolf) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Wolf) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
+								if (!parts[++index].equals("null"))
+								{
+									((Wolf) entity).setTamed(true);
+									((Wolf) entity).setOwner(Bukkit.getOfflinePlayer(parts[index])); // 17
+									((Wolf) entity).setSitting(Boolean.parseBoolean(parts[++index])); // 18
+								}
 								break;
-				case OCELOT:	((Ocelot) entity).setAge(Integer.parseInt(parts[14])); // 14
-								((Ocelot) entity).setBreed(Boolean.parseBoolean(parts[15])); // 15
-								((Ocelot) entity).setCatType(Type.getType(Integer.parseInt(parts[16]))); // 16
-								((Ocelot) entity).setOwner(Bukkit.getOfflinePlayer(parts[17])); // 17
-								((Ocelot) entity).setSitting(Boolean.parseBoolean(parts[18])); // 18
+				case OCELOT:	((Ocelot) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Ocelot) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
+								((Ocelot) entity).setCatType(Type.getType(Integer.parseInt(parts[++index]))); // 17
+								if (!parts[++index].equals("null"))
+								{
+									((Ocelot) entity).setTamed(true);
+									((Ocelot) entity).setOwner(Bukkit.getOfflinePlayer(parts[index])); // 18
+									((Ocelot) entity).setSitting(Boolean.parseBoolean(parts[++index])); // 19
+								}
 								break;
-				case VILLAGER:	((Villager) entity).setAge(Integer.parseInt(parts[14])); // 14
-								((Villager) entity).setBreed(Boolean.parseBoolean(parts[15])); // 15
-								((Villager) entity).setProfession(Profession.getProfession(Integer.parseInt(parts[16]))); // 16
+				case VILLAGER:	((Villager) entity).setAge(Integer.parseInt(parts[++index])); // 15
+								((Villager) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
+								((Villager) entity).setProfession(Profession.getProfession(Integer.parseInt(parts[++index]))); // 17
 								break;
 								
 				default:		break;
 				
 				}
 				
+				((LivingEntity) entity).setHealth(health);
 				((LivingEntity) entity).addPotionEffects(deserializePotionEffects(data.substring(data.indexOf(Constants.prefixEffects)))); // ?
+			}
+			else if (entity instanceof Projectile)
+			{
+				((Projectile) entity).setBounce(Boolean.parseBoolean(parts[++index]));
 			}
 			else
 			{
 				switch (entity.getType())
 				{
-				case PAINTING:	data += ((Painting) entity).getArt().getId() + div1; // 14
-								data += ((Painting) entity).getAttachedFace().name() + div1; // 15
+				case PAINTING:	((Painting) entity).setArt(Art.getById(Integer.parseInt(parts[++index])), true);
+								((Painting) entity).setFacingDirection(BlockFace.valueOf(parts[++index]), true); // 15
 								break;
-				case PRIMED_TNT:data += ((TNTPrimed) entity).getFireTicks() + div1;
+				case PRIMED_TNT:((TNTPrimed) entity).setFuseTicks(Integer.parseInt(parts[++index]));
 								break;
 				default:		break;
 				}

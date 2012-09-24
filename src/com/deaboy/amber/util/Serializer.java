@@ -19,12 +19,15 @@ import org.bukkit.entity.Cow;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Painting;
 import org.bukkit.entity.Pig;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.TNTPrimed;
@@ -147,58 +150,64 @@ public class Serializer
 		data += entity.getVelocity().getX() + div1;		// 8
 		data += entity.getVelocity().getY() + div1;		// 9
 		data += entity.getVelocity().getZ() + div1;		// 10
+		data += entity.getFireTicks() + div1;			// 11
+		data += entity.getFallDistance() + div1;		// 12
 		
-		if (entity instanceof LivingEntity)
+		if (entity.getType() == EntityType.DROPPED_ITEM)
 		{
-			data += ((LivingEntity) entity).getHealth() + div1; // 11
-			data += ((LivingEntity) entity).getRemainingAir() + div1; // 12
-			data += ((LivingEntity) entity).getFallDistance() + div1; // 13
+			data += Constants.prefixInventory;
+			data += serializeItemStack(((Item) entity).getItemStack()); // 13 +
+		}
+		else if (entity instanceof LivingEntity)
+		{
+			data += ((LivingEntity) entity).getHealth() + div1; // 13
+			data += ((LivingEntity) entity).getRemainingAir() + div1; // 14
 			
 			switch (entity.getType())
 			{
 			// HOSTILE
-			case CREEPER:	data += ((Creeper) entity).isPowered() + div1; // 14
+			case CREEPER:	data += ((Creeper) entity).isPowered() + div1; // 15
 							break;
-			case ENDERMAN:	data += ((Enderman) entity).getCarriedMaterial().getItemTypeId() + div1; // 14
-							data += ((Enderman) entity).getCarriedMaterial().getData() + div1; // 
+			case ENDERMAN:	data += ((Enderman) entity).getCarriedMaterial().getItemTypeId() + div1; // 15
+							data += ((Enderman) entity).getCarriedMaterial().getData() + div1; // 16
 							break;
-			case SLIME:		data += ((Slime) entity).getSize() + div1; // 14
+			case SLIME:		data += ((Slime) entity).getSize() + div1; // 15
 							break;
 			// NETHER
-			case MAGMA_CUBE:data += ((MagmaCube) entity).getSize() + div1; // 14
+			case MAGMA_CUBE:data += ((MagmaCube) entity).getSize() + div1; // 15
 							break;
 			// PASSIVE
-			case PIG:		data += ((Pig) entity).getAge() + div1; // 14
-							data += ((Pig) entity).canBreed() + div1; // 15
-							data += ((Pig) entity).hasSaddle() + div1; // 16
+			case PIG:		data += ((Pig) entity).getAge() + div1; // 15
+							data += ((Pig) entity).canBreed() + div1; // 16
+							data += ((Pig) entity).hasSaddle() + div1; // 17
 							break;
-			case COW:		data += ((Cow) entity).getAge() + div1; // 14
-							data += ((Cow) entity).canBreed() + div1; // 15
+			case COW:		data += ((Cow) entity).getAge() + div1; // 15
+							data += ((Cow) entity).canBreed() + div1; // 16
 							break;
-			case MUSHROOM_COW:data += ((MushroomCow) entity).getAge() + div1; // 14
-							data += ((MushroomCow) entity).canBreed() + div1; // 15
+			case MUSHROOM_COW:data += ((MushroomCow) entity).getAge() + div1; // 15
+							data += ((MushroomCow) entity).canBreed() + div1; // 16
 							break;
-			case CHICKEN:	data += ((Chicken) entity).getAge() + div1; // 14
-							data += ((Chicken) entity).canBreed() + div1; // 15
+			case CHICKEN:	data += ((Chicken) entity).getAge() + div1; // 15
+							data += ((Chicken) entity).canBreed() + div1; // 16
 							break;
-			case SHEEP:		data += ((Sheep) entity).getAge() + div1; // 14
-							data += ((Sheep) entity).canBreed() + div1; // 15
-							data += ((Sheep) entity).getColor().getData() + div1; // 16
+			case SHEEP:		data += ((Sheep) entity).getAge() + div1; // 15
+							data += ((Sheep) entity).canBreed() + div1; // 16
+							data += ((Sheep) entity).getColor().getData() + div1; // 17
 							break;
-			case WOLF:		data += ((Wolf) entity).getAge() + div1; // 14
-							data += ((Wolf) entity).canBreed() + div1; // 15
-							data += (((Wolf) entity).getOwner() == null ? "null" : ((Wolf) entity).getOwner().getName()) + div1; // 16
-							data += ((Wolf) entity).isSitting() + div1; // 17
+			case WOLF:		data += ((Wolf) entity).getAge() + div1; // 15
+							data += ((Wolf) entity).canBreed() + div1; // 16
+							data += (((Wolf) entity).getOwner() == null ? "null" : ((Wolf) entity).getOwner().getName()) + div1; // 17
+							data += ((Wolf) entity).isSitting() + div1; // 18
 							break;
-			case OCELOT:	data += ((Ocelot) entity).getAge() + div1; // 14
-							data += ((Ocelot) entity).canBreed() + div1; // 15
-							data += ((Ocelot) entity).getCatType().getId() + div1; // 16
-							data += (((Ocelot) entity).getOwner() == null ? "null" : ((Ocelot) entity).getOwner().getName()) + div1; // 17
-							data += ((Ocelot) entity).isSitting() + div1; // 18
+			case OCELOT:	data += ((Ocelot) entity).getAge() + div1; // 15
+							data += ((Ocelot) entity).canBreed() + div1; // 16
+							data += ((Ocelot) entity).getCatType().getId() + div1; // 17
+							data += (((Ocelot) entity).getOwner() == null ? "null" : ((Ocelot) entity).getOwner().getName()) + div1; // 18
+							data += ((Ocelot) entity).isSitting() + div1; // 19
 							break;
-			case VILLAGER:	data += ((Villager) entity).getAge() + div1; // 14
-							data += ((Villager) entity).canBreed() + div1; // 15
-							data += ((Villager) entity).getProfession().getId() + div1; // 16
+			case VILLAGER:	data += ((Villager) entity).getAge() + div1; // 15
+							data += ((Villager) entity).canBreed() + div1; // 16
+							data += ((Villager) entity).getProfession().getId() + div1; // 17
 							break;
 							
 			default:		break;
@@ -207,14 +216,18 @@ public class Serializer
 			
 			data += serializePotionEffects(((LivingEntity) entity).getActivePotionEffects()) + div1; // ?
 		}
+		else if (entity instanceof Projectile)
+		{
+			data += ((Projectile) entity).doesBounce(); // 15
+		}
 		else
 		{
 			switch (entity.getType())
 			{
-			case PAINTING:	data += ((Painting) entity).getArt().getId() + div1; // 14
-							data += ((Painting) entity).getAttachedFace().name() + div1; // 15
+			case PAINTING:	data += ((Painting) entity).getArt().getId() + div1; // 15
+							data += ((Painting) entity).getAttachedFace().name() + div1; // 16
 							break;
-			case PRIMED_TNT:data += ((TNTPrimed) entity).getFireTicks() + div1;
+			case PRIMED_TNT:data += ((TNTPrimed) entity).getFuseTicks() + div1; // 15
 							break;
 			default:		break;
 			}
@@ -222,6 +235,7 @@ public class Serializer
 		
 		return data;
 	}
+
 
 	public static String serializeItemStack(ItemStack ... stack)
 	{
