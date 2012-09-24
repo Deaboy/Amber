@@ -263,16 +263,8 @@ public class Deserializer
 			
 			if (entity instanceof LivingEntity)
 			{
-				// Tamed Wolves have higher health than other LivingEntities.
-				// If you don't do this, you'll get an exception.
-				if (entity.getType() == EntityType.WOLF)
-				{
-					((Wolf) entity).setHealth(Integer.parseInt(parts[++index])*2/5);
-				}
-				else
-				{
-					((LivingEntity) entity).setHealth(Integer.parseInt(parts[++index]));
-				}
+				int health = Integer.parseInt(parts[++index]);
+				
 				((LivingEntity) entity).setRemainingAir(Integer.parseInt(parts[++index]));
 				
 				switch (entity.getType())
@@ -333,6 +325,7 @@ public class Deserializer
 				
 				}
 				
+				((LivingEntity) entity).setHealth(health);
 				((LivingEntity) entity).addPotionEffects(deserializePotionEffects(data.substring(data.indexOf(Constants.prefixEffects)))); // ?
 			}
 			else if (entity instanceof Projectile)
