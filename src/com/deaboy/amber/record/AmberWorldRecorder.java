@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -17,6 +18,7 @@ import com.deaboy.amber.Amber;
 import com.deaboy.amber.util.Constants;
 import com.deaboy.amber.util.Deserializer;
 import com.deaboy.amber.util.Serializer;
+import com.deaboy.amber.util.Util;
 
 public class AmberWorldRecorder implements Listener
 {
@@ -215,8 +217,24 @@ public class AmberWorldRecorder implements Listener
 					|| (block2 = world.getBlockAt(block.getX(), block.getY(), block.getZ()-1).getState()).getType() == Material.CHEST)
 				saveBlock(block2);
 		}
+		if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL)
+		{
+			saveTransparentBlocksBelow(block);
+		}
 		
 		return true;
+	}
+	
+	public void saveTransparentBlocksBelow(BlockState block)
+	{
+		BlockState block2;
+		block2 = block.getBlock().getRelative(BlockFace.DOWN).getState();
+		
+		while (!Util.isSolid(block2.getType()))
+		{
+			saveBlock(block2);
+			block2 = block2.getBlock().getRelative(BlockFace.DOWN).getState();
+		}
 	}
 	
 	public boolean locationAlreadySaved(Location loc)

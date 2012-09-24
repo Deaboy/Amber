@@ -3,6 +3,7 @@ package com.deaboy.amber.record;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Cancellable;
@@ -61,7 +62,11 @@ public class AmberWorldRecorderListener implements Listener
 			if (e instanceof BlockEvent)
 				block = ((BlockEvent) e).getBlock().getState();
 			else if (e instanceof BlockPlaceEvent)
+			{
 				block = ((BlockPlaceEvent) e).getBlockReplacedState();
+				if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL)
+					Amber.getWorldRecorder(world).saveTransparentBlocksBelow(block);
+			}
 			else if (e instanceof BlockFromToEvent)
 				block = ((BlockFromToEvent) e).getToBlock().getState();
 			else if (e instanceof PlayerInteractEvent)
