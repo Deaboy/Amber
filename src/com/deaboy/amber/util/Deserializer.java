@@ -63,7 +63,7 @@ public class Deserializer
 	 * Deserializes data into world settings.
 	 * @param data
 	 */
-	public static void deserializeWorld(String data)
+	public static void deserializeWorld(String data, World w)
 	{
 		data = new String(data.substring(Constants.prefixWorld.length()));
 		String[] parts = data.split(div1).clone();
@@ -77,6 +77,11 @@ public class Deserializer
 		{
 			// GET WORLD
 			World world = Bukkit.getWorld(parts[0]);
+			
+			if (world != w)
+			{
+				return;
+			}
 			
 			//PARSE THE DATA
 			long fullTime = Long.parseLong(parts[1]);
@@ -135,7 +140,7 @@ public class Deserializer
 	 * @param block The block to deserialize to
 	 * @param data The data to deserialize from
 	 */
-	public static void deserializeBlock(String data)
+	public static Block deserializeBlock(String data)
 	{
 		data = new String(data.substring(Constants.prefixBlock.length()));
 		String[] parts = data.split(div1).clone();
@@ -152,7 +157,7 @@ public class Deserializer
 			World world = Bukkit.getWorld(parts[++index]);
 			if (world == null)
 			{
-				return;
+				return null;
 			}
 			Block block = world.getBlockAt(Integer.parseInt(parts[++index]), Integer.parseInt(parts[++index]), Integer.parseInt(parts[++index]));
 			
@@ -200,17 +205,18 @@ public class Deserializer
 				}
 				
 				state.update();
+				return block;
 			}
 			catch (Exception e)
 			{
 				e.printStackTrace();
-				return;
+				return null;
 			}
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			return;
+			return null;
 		}
 	}
 

@@ -1,6 +1,7 @@
 package com.deaboy.amber.record;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 
 /**
  * Tiny, simple class for saving a block's location.
@@ -35,5 +36,10 @@ public class TinyBlockLoc
 	public boolean equals(Location loc)
 	{
 		return (x == loc.getBlockX() && y == loc.getBlockY() && z == loc.getBlockZ());
+	}
+	
+	public Location toLocation(World world)
+	{
+		return new Location(world, x, y, z);
 	}
 }

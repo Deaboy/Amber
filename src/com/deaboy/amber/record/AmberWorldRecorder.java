@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
@@ -31,10 +32,12 @@ public class AmberWorldRecorder implements Listener
 	private Status status;
 	
 	private int schedule;
-	private static final int apt = 500; // ACTIONS PER TICK
+	private static final int apt = 1000; // ACTIONS PER TICK
+	
+	private String worldData = null;
 
 	private List<TinyBlockLoc> blockLocs = new ArrayList<TinyBlockLoc>();
-
+	
 	public AmberWorldRecorder(World world)
 	{
 		this.world = world;
@@ -46,9 +49,7 @@ public class AmberWorldRecorder implements Listener
 		status = Status.IDLE;
 	}
 
-	/*
-	 * RECORDING METHODS 
-	 */
+	/* *************** RECORDING METHODS ************* */
 	
 	public void startRecording()
 	{
@@ -62,6 +63,7 @@ public class AmberWorldRecorder implements Listener
 		}
 		output.open();
 		listener.startListening();
+		output.write(Serializer.serializeWorld(world));
 		saveAllEntities();
 	}
 
@@ -98,9 +100,7 @@ public class AmberWorldRecorder implements Listener
 		}
 	}
 	
-	/*
-	 * RESTORING METHODS
-	 */
+	/* *************** RESTORING METHODS ************* */
 	
 	public void startRestoring()
 	{
@@ -131,7 +131,7 @@ public class AmberWorldRecorder implements Listener
 			{
 				restoreStep();
 			}
-		}, 0, 0);
+		}, 3, 3);
 	}
 	
 	public void stopRestoring()
@@ -145,6 +145,13 @@ public class AmberWorldRecorder implements Listener
 		{
 			return;
 		}
+		
+		if (worldData != null)
+		{
+			Deserializer.deserializeWorld(worldData, world);
+			worldData = null;
+		}
+		
 		input.close();
 		listener.stopListening();
 		
@@ -155,6 +162,35 @@ public class AmberWorldRecorder implements Listener
 	public void restoreStep()
 	{
 		int step = apt;
+		
+		if (!blockLocs.isEmpty())
+		{
+			BlockState block;
+			
+			for (TinyBlockLoc loc : blockLocs)
+			{
+				block = world.getBlockAt(loc.toLocation(world)).getState();
+				if (block.getRawData() == 0)
+				{
+					block.getBlock().setType(Material.AIR);
+				}
+				else if (block.getRawData() == 1)
+				{
+					block.getBlock().setType(Material.WATER);
+				}
+				else if (block.getRawData() == 2)
+				{
+					block.getBlock().setType(Material.LAVA);
+				}
+				else
+				{
+					block.getBlock().setType(Material.AIR);
+				}
+				//step--;
+			}
+			
+			blockLocs.clear();
+		}
 		
 		while (step > 0)
 		{
@@ -168,31 +204,80 @@ public class AmberWorldRecorder implements Listener
 			
 			if (data.startsWith(Constants.prefixWorld))
 			{
-				Bukkit.getLogger().log(Level.INFO, "Restoring World");
-				Deserializer.deserializeWorld(data);
-				step--;
+				//Bukkit.getLogger().log(Level.INFO, "Restoring World");
+				worldData = data;
 			}
 			else if (data.startsWith(Constants.prefixEntity))
 			{
-				Bukkit.getLogger().log(Level.INFO, "Restoring entity");
+				//Bukkit.getLogger().log(Level.INFO, "Restoring entity");
 				Deserializer.deserializeEntity(data);
 				step--;
 			}
 			else if (data.startsWith(Constants.prefixBlock))
 			{
-				Bukkit.getLogger().log(Level.INFO, "Restoring block");
-				Deserializer.deserializeBlock(data);
+				//Bukkit.getLogger().log(Level.INFO, "Restoring block");
+				Block block = Deserializer.deserializeBlock(data);
 				step--;
+				
+				if (locationAlreadySaved(block.getLocation()))
+				{
+					TinyBlockLoc loc = null;
+					for (TinyBlockLoc l : blockLocs)
+					{
+						if (l.equals(block.getLocation()))
+						{
+							loc = l;
+							break;
+						}
+					}
+					if (loc != null)
+					{
+						blockLocs.remove(loc);
+					}
+				}
+				if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL)
+				{
+					block = block.getRelative(BlockFace.DOWN);
+					
+					if (block.getType() == Material.AIR)
+					{
+						block.setType(Material.SANDSTONE);
+						block.setData((byte) 0);
+						blockLocs.add(new TinyBlockLoc(block.getLocation()));
+					}
+					else if (block.getType() == Material.WATER)
+					{
+						block.setType(Material.SANDSTONE);
+						block.setData((byte) 1);
+						blockLocs.add(new TinyBlockLoc(block.getLocation()));
+					}
+					else if (block.getType() == Material.LAVA)
+					{
+						block.setType(Material.SANDSTONE);
+						block.setData((byte) 2);
+						blockLocs.add(new TinyBlockLoc(block.getLocation()));
+					}
+					else if (block.isLiquid())
+					{
+						block.setType(Material.SANDSTONE);
+						block.setData((byte) 0);
+						blockLocs.add(new TinyBlockLoc(block.getLocation()));
+					}
+				}
 			}
 			else
 			{
 				continue;
 			}
-			
 		}
 	}
 
 	public boolean saveBlock(BlockState block)
+	{
+		return saveBlock(block, true);
+	}
+
+	private boolean saveBlock(BlockState block, boolean below)
 	{
 		if (output == null)
 		{
@@ -212,13 +297,13 @@ public class AmberWorldRecorder implements Listener
 		{
 			BlockState block2;
 			
-			if ((block2 = world.getBlockAt(block.getX()+1, block.getY(), block.getZ()).getState()).getType() == Material.CHEST
-					|| (block2 = world.getBlockAt(block.getX()-1, block.getY(), block.getZ()).getState()).getType() == Material.CHEST
-					|| (block2 = world.getBlockAt(block.getX(), block.getY(), block.getZ()+1).getState()).getType() == Material.CHEST
-					|| (block2 = world.getBlockAt(block.getX(), block.getY(), block.getZ()-1).getState()).getType() == Material.CHEST)
+			if ((block2 = block.getBlock().getRelative(BlockFace.NORTH).getState()).getType() == Material.CHEST
+					|| (block2 = block.getBlock().getRelative(BlockFace.SOUTH).getState()).getType() == Material.CHEST
+					|| (block2 = block.getBlock().getRelative(BlockFace.EAST).getState()).getType() == Material.CHEST
+					|| (block2 = block.getBlock().getRelative(BlockFace.WEST).getState()).getType() == Material.CHEST)
 				saveBlock(block2);
 		}
-		if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL)
+		if (below)
 		{
 			saveTransparentBlocksBelow(block);
 		}
@@ -231,9 +316,9 @@ public class AmberWorldRecorder implements Listener
 		BlockState block2;
 		block2 = block.getBlock().getRelative(BlockFace.DOWN).getState();
 		
-		while (!Util.isSolid(block2.getType()))
+		while (!Util.isSolid(block2.getType()) && block2.getY() > 0)
 		{
-			saveBlock(block2);
+			saveBlock(block2, false);
 			block2 = block2.getBlock().getRelative(BlockFace.DOWN).getState();
 		}
 	}

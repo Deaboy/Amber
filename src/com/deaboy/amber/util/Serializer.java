@@ -53,7 +53,7 @@ public class Serializer
 	{
 		String data = Constants.prefixWorld;
 		// WORLD NAME
-		data += world.getName();
+		data += world.getName() + div1;
 		
 		//WORLD TIME
 		data += world.getFullTime() + div1;
@@ -76,7 +76,7 @@ public class Serializer
 		data += world.getWaterAnimalSpawnLimit() + div1;
 		
 		//WORLD SETTINGS
-		data += world.getDifficulty() + div1;
+		data += world.getDifficulty().getValue() + div1;
 		data += world.getPVP() + div1;
 		
 		return data;

@@ -1,9 +1,6 @@
 package com.deaboy.amber.record;
 
-import java.util.logging.Level;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -63,14 +60,8 @@ public class AmberWorldRecorderListener implements Listener
 			BlockState block = null;
 			if (e instanceof BlockEvent)
 				block = ((BlockEvent) e).getBlock().getState();
-			if (e instanceof BlockBreakEvent)
-				Amber.getWorldRecorder(world).saveTransparentBlocksBelow(block);
 			if (e instanceof BlockPlaceEvent)
-			{
-				if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL)
-					Amber.getWorldRecorder(world).saveTransparentBlocksBelow(block);
 				block = ((BlockPlaceEvent) e).getBlockReplacedState();
-			}
 			if (e instanceof BlockFromToEvent)
 				block = ((BlockFromToEvent) e).getToBlock().getState();
 			if (e instanceof BlockPhysicsEvent)
@@ -92,8 +83,8 @@ public class AmberWorldRecorderListener implements Listener
 			}
 			if (Amber.getWorldRecorder(world).saveBlock(block))
 			{
-				Bukkit.getLogger().log(Level.INFO, "Saved block: " + block.getType().name());
-				Bukkit.getLogger().log(Level.INFO, "   event: " + e.getEventName());
+				//Bukkit.getLogger().log(Level.INFO, "Saved block: " + block.getType().name());
+				//Bukkit.getLogger().log(Level.INFO, "   event: " + e.getEventName());
 			}
 		}
 		else if (Amber.getWorldRecorder(world).isRestoring())
@@ -230,8 +221,8 @@ public class AmberWorldRecorderListener implements Listener
 		{
 			if (Amber.getWorldRecorder(world).saveBlock(block.getState()))
 			{
-				Bukkit.getLogger().log(Level.INFO, "Saved block: " + block.getType().name());
-				Bukkit.getLogger().log(Level.INFO, "   event: " + e.getEventName());
+				//Bukkit.getLogger().log(Level.INFO, "Saved block: " + block.getType().name());
+				//Bukkit.getLogger().log(Level.INFO, "   event: " + e.getEventName());
 			}
 		}
 	}
