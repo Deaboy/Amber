@@ -235,7 +235,7 @@ public class AmberWorldRecorder implements Listener
 						blockLocs.remove(loc);
 					}
 				}
-				if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL)
+				if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL || block.getType() == Material.ANVIL || block.getType() == Material.DRAGON_EGG)
 				{
 					block = block.getRelative(BlockFace.DOWN);
 					
