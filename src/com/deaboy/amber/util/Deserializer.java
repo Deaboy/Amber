@@ -303,7 +303,7 @@ public class Deserializer
 								break;
 				case SHEEP:		((Sheep) entity).setAge(Integer.parseInt(parts[++index])); // 15
 								((Sheep) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16
-								((Sheep) entity).setColor(DyeColor.getByData(Byte.parseByte(parts[++index]))); // 17
+								((Sheep) entity).setColor(DyeColor.getByDyeData(Byte.parseByte(parts[++index]))); // 17
 								break;
 				case WOLF:		((Wolf) entity).setAge(Integer.parseInt(parts[++index])); // 15
 								((Wolf) entity).setBreed(Boolean.parseBoolean(parts[++index])); // 16

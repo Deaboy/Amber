@@ -192,7 +192,7 @@ public class Serializer
 							break;
 			case SHEEP:		data += ((Sheep) entity).getAge() + div1; // 15
 							data += ((Sheep) entity).canBreed() + div1; // 16
-							data += ((Sheep) entity).getColor().getData() + div1; // 17
+							data += ((Sheep) entity).getColor().getDyeData() + div1; // 17
 							break;
 			case WOLF:		data += ((Wolf) entity).getAge() + div1; // 15
 							data += ((Wolf) entity).canBreed() + div1; // 16
