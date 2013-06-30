@@ -20,6 +20,8 @@ import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.Dispenser;
+import org.bukkit.block.Dropper;
+import org.bukkit.block.Hopper;
 import org.bukkit.block.Furnace;
 import org.bukkit.block.Jukebox;
 import org.bukkit.block.NoteBlock;
@@ -186,6 +188,12 @@ public class Deserializer
 				case DISPENSER:		((Dispenser) state).getInventory().clear();
 									((Dispenser) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
 									break;
+				case DROPPER:		((Dropper) state).getInventory().clear();
+									((Dropper) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
+									break;
+				case HOPPER:		((Hopper) state).getInventory().clear();
+									((Hopper) state).getInventory().setContents(deserializeItemStack(data.substring(data.indexOf(Constants.prefixInventory))));
+									break;
 				case FURNACE:		((Furnace) state).setBurnTime(Short.parseShort(parts[++index]));
 									((Furnace) state).setCookTime(Short.parseShort(parts[++index]));
 									((Furnace) state).getInventory().clear();
@@ -333,7 +341,8 @@ public class Deserializer
 				
 				}
 				
-				((LivingEntity) entity).setHealth(health);
+				if (health < ((LivingEntity) entity).getMaxHealth())
+					((LivingEntity) entity).setHealth(health);
 				((LivingEntity) entity).addPotionEffects(deserializePotionEffects(data.substring(data.indexOf(Constants.prefixEffects)))); // ?
 			}
 			else if (entity instanceof Projectile)

@@ -9,6 +9,8 @@ import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.Dispenser;
+import org.bukkit.block.Dropper;
+import org.bukkit.block.Hopper;
 import org.bukkit.block.Furnace;
 import org.bukkit.block.Jukebox;
 import org.bukkit.block.NoteBlock;
@@ -113,6 +115,12 @@ public class Serializer
 							break;
 		case DISPENSER:		data += Constants.prefixInventory;
 							data += serializeItemStack(((Dispenser) block).getInventory().getContents()); //serializeItemStack includes a div1
+							break;
+		case DROPPER:		data += Constants.prefixInventory;
+							data += serializeItemStack(((Dropper) block).getInventory().getContents());
+							break;
+		case HOPPER:		data += Constants.prefixInventory;
+							data += serializeItemStack(((Hopper) block).getInventory().getContents());
 							break;
 		case FURNACE:		data += ((Furnace) block).getBurnTime() + div1;
 							data += ((Furnace) block).getCookTime() + div1;

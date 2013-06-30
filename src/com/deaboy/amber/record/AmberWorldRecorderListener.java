@@ -51,6 +51,25 @@ public class AmberWorldRecorderListener implements Listener
 				return;
 			}
 		}
+		else if (e instanceof InventoryPickupItemEvent)
+		{
+			if (!(((InventoryPickupItemEvent) e).getInventory().getHolder() instanceof BlockState)
+				|| ((BlockState) ((InventoryPickupItemEvent) e).getInventory().getHolder()).getWorld() != world)
+			{
+				return;
+			}
+		}
+		else if (e instanceof InventoryMoveItemEvent)
+		{
+			if ((
+					!(((InventoryMoveItemEvent) e).getSource().getHolder() instanceof BlockState)
+					|| ((BlockState) ((InventoryMoveItemEvent) e).getSource().getHolder()).getWorld() != world
+				) && (
+					!(((InventoryMoveItemEvent) e).getDestination().getHolder() instanceof BlockState)
+					|| ((BlockState) ((InventoryMoveItemEvent) e).getDestination().getHolder()).getWorld() != world
+					))
+				return;
+		}
 		else
 		{
 			return;
@@ -77,6 +96,43 @@ public class AmberWorldRecorderListener implements Listener
 					return;
 				else
 					block = ((PlayerInteractEvent) e).getClickedBlock().getState();
+			if (e instanceof BlockPistonExtendEvent)
+			{
+				Block b = block.getBlock();
+				for (int i = 0; i <= ((BlockPistonExtendEvent) e).getLength(); i++)
+				{
+					b = b.getRelative(((BlockPistonExtendEvent) e).getDirection());
+					Amber.getWorldRecorder(world).saveBlock(b.getState());
+				}
+			}
+			if (e instanceof BlockPistonRetractEvent)
+			{
+
+				Block b = block.getBlock();
+				for (int i = 0; i < 2; i++)
+				{
+					b = b.getRelative(((BlockPistonRetractEvent) e).getDirection());
+					Amber.getWorldRecorder(world).saveBlock(b.getState());
+				}
+			}
+			if (e instanceof InventoryPickupItemEvent)
+			{
+				if (((InventoryPickupItemEvent) e).getInventory().getHolder() instanceof BlockState)
+					block = (BlockState) ((InventoryPickupItemEvent) e).getInventory().getHolder();
+			}
+			if (e instanceof InventoryMoveItemEvent)
+			{
+				if (((InventoryMoveItemEvent) e).getSource().getHolder() instanceof BlockState)
+				{
+					block = (BlockState) ((InventoryMoveItemEvent) e).getSource().getHolder();
+					Amber.getWorldRecorder(world).saveBlock(block);
+				}
+				if (((InventoryMoveItemEvent) e).getDestination().getHolder() instanceof BlockState)
+				{
+					block = (BlockState) ((InventoryMoveItemEvent) e).getDestination().getHolder();
+					Amber.getWorldRecorder(world).saveBlock(block);
+				}
+			}
 			if (block == null)
 			{
 				return;
@@ -117,7 +173,7 @@ public class AmberWorldRecorderListener implements Listener
 	{
 		onEvent(e);
 	}
-
+	
 	@EventHandler
 	public void onBlockFade(BlockFadeEvent e)
 	{
@@ -166,6 +222,18 @@ public class AmberWorldRecorderListener implements Listener
 		onEvent(e);
 	}
 
+	@EventHandler
+	public void onInventoryMoveItem(InventoryMoveItemEvent e)
+	{
+		onEvent(e);
+	}
+	
+	@EventHandler
+	public void onInventoryPickupItem(InventoryPickupItemEvent e)
+	{
+		onEvent(e);
+	}
+	
 	@EventHandler
 	public void onLeavesDecay(LeavesDecayEvent e)
 	{

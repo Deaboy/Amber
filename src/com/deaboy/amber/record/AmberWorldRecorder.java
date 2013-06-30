@@ -1,5 +1,6 @@
 package com.deaboy.amber.record;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -14,6 +15,8 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Listener;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.craftbukkit.v1_5_R3.CraftWorld;
 
 import com.deaboy.amber.Amber;
 import com.deaboy.amber.util.Constants;
@@ -24,11 +27,13 @@ import com.deaboy.amber.util.Util;
 public class AmberWorldRecorder implements Listener
 {
 	public final World world;
-
+	
 	private final AmberWorldRecorderFileOutput output;
 	private final AmberWorldRecorderFileInput input;
 	private final AmberWorldRecorderListener listener;
 	
+	private static final String metadata = "Ambered";
+	private long metavalue;
 	private Status status;
 	
 	private int schedule;
@@ -61,6 +66,7 @@ public class AmberWorldRecorder implements Listener
 		{
 			return;
 		}
+		metavalue = Calendar.getInstance().getTimeInMillis();
 		output.open();
 		listener.startListening();
 		output.write(Serializer.serializeWorld(world));
@@ -124,6 +130,7 @@ public class AmberWorldRecorder implements Listener
 			}
 			e.remove();
 		}
+		((CraftWorld) world).getHandle().isStatic = true;
 		
 		schedule = Bukkit.getScheduler().scheduleSyncRepeatingTask(Amber.getInstance(), new Runnable()
 		{
@@ -137,6 +144,7 @@ public class AmberWorldRecorder implements Listener
 	public void stopRestoring()
 	{
 		Bukkit.getLogger().log(Level.INFO, "stopping restoring...");
+		((CraftWorld) world).getHandle().isStatic = false;
 		if (status == Status.RESTORING)
 		{
 			status = Status.IDLE;
@@ -219,6 +227,9 @@ public class AmberWorldRecorder implements Listener
 				Block block = Deserializer.deserializeBlock(data);
 				step--;
 				
+				if (block.hasMetadata(metadata))
+					block.removeMetadata(metadata, Amber.getInstance());
+				/*
 				if (locationAlreadySaved(block.getLocation()))
 				{
 					TinyBlockLoc loc = null;
@@ -235,6 +246,8 @@ public class AmberWorldRecorder implements Listener
 						blockLocs.remove(loc);
 					}
 				}
+				*/
+				/*
 				if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL || block.getType() == Material.ANVIL || block.getType() == Material.DRAGON_EGG)
 				{
 					block = block.getRelative(BlockFace.DOWN);
@@ -264,6 +277,7 @@ public class AmberWorldRecorder implements Listener
 						blockLocs.add(new TinyBlockLoc(block.getLocation()));
 					}
 				}
+				*/
 			}
 			else
 			{
@@ -283,13 +297,21 @@ public class AmberWorldRecorder implements Listener
 		{
 			return false;
 		}
+		
+		if (blockAlreadySaved(block))
+			return false;
+		else
+		{
+			block.setMetadata(metadata, new FixedMetadataValue(Amber.getInstance(), metavalue));
+		}
+		/*
 		if (locationAlreadySaved(block.getLocation()))
 		{
 			return false;
 		}
 		
 		blockLocs.add(new TinyBlockLoc(block.getLocation()));
-		
+		*/
 		String data = Serializer.serializeBlockState(block);
 		output.write(data);
 		
@@ -323,8 +345,9 @@ public class AmberWorldRecorder implements Listener
 		}
 	}
 	
-	public boolean locationAlreadySaved(Location loc)
+	public boolean blockAlreadySaved(BlockState block)
 	{
+		/*
 		for (TinyBlockLoc bLoc : blockLocs)
 		{
 			if (bLoc.equals(loc))
@@ -333,6 +356,8 @@ public class AmberWorldRecorder implements Listener
 			}
 		}
 		return false;
+		*/
+		return block.hasMetadata(metadata) && block.getMetadata(metadata).get(0).asLong() == metavalue;
 	}
 	
 	public boolean isIdle()

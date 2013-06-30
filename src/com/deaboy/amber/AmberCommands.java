@@ -28,6 +28,11 @@ public class AmberCommands implements CommandExecutor
 		
 		Player p = (Player) sender;
 		
+		if (args.length == 0)
+		{
+			sender.sendMessage("record, stoprecording, restore, stoprestoring");
+			return true;
+		}
 		if (args[0].equalsIgnoreCase("record"))
 		{
 			if (Amber.startRecordingWorld(p.getWorld()))
