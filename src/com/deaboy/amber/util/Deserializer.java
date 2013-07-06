@@ -279,7 +279,7 @@ public class Deserializer
 			
 			if (entity instanceof LivingEntity)
 			{
-				int health = Integer.parseInt(parts[++index]);
+				double health = Double.parseDouble(parts[++index]);
 				
 				((LivingEntity) entity).setRemainingAir(Integer.parseInt(parts[++index]));
 				
