@@ -35,7 +35,7 @@ public class AmberCommands implements CommandExecutor
 		}
 		if (args[0].equalsIgnoreCase("record"))
 		{
-			if (Amber.startRecordingWorld(p.getWorld()))
+			if (Amber.startRecordingWorld(p.getWorld(), AmberPlugin.getInstance()))
 			{
 				sender.sendMessage("Recording world");
 			}
@@ -57,7 +57,7 @@ public class AmberCommands implements CommandExecutor
 		}
 		else if (args[0].equalsIgnoreCase("restore"))
 		{
-			if (Amber.startRestoringWorld(p.getWorld()))
+			if (Amber.startRestoringWorld(p.getWorld(), AmberPlugin.getInstance()))
 			{
 				sender.sendMessage("Restoring world");
 			}

@@ -13,6 +13,7 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.entity.*;
+import org.bukkit.plugin.Plugin;
 
 import com.deaboy.amber.Amber;
 
@@ -25,9 +26,9 @@ public class AmberWorldRecorderListener implements Listener
 		this.world = world;
 	}
 	
-	public void startListening()
+	public void startListening(Plugin plugin)
 	{
-		Bukkit.getServer().getPluginManager().registerEvents(this, Amber.getInstance());
+		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 
 	public void stopListening()

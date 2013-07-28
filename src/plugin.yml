@@ -1,6 +1,6 @@
 name: Amber
 version: 0.1
-main: com.deaboy.amber.Amber
+main: com.deaboy.amber.AmberPlugin
 website: github.com/Deaboy/Amber
 author: Deaboy
 commands:

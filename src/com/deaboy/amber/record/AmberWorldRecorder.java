@@ -15,9 +15,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Listener;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.craftbukkit.v1_6_R2.CraftWorld;
 
-import com.deaboy.amber.Amber;
 import com.deaboy.amber.util.Constants;
 import com.deaboy.amber.util.Deserializer;
 import com.deaboy.amber.util.Serializer;
@@ -27,6 +27,7 @@ public class AmberWorldRecorder implements Listener
 {
 	public final World world;
 	
+	private Plugin plugin;
 	private final AmberWorldRecorderFileOutput output;
 	private final AmberWorldRecorderFileInput input;
 	private final AmberWorldRecorderListener listener;
@@ -55,7 +56,7 @@ public class AmberWorldRecorder implements Listener
 
 	/* *************** RECORDING METHODS ************* */
 	
-	public void startRecording()
+	public void startRecording(Plugin plugin)
 	{
 		if (status == Status.IDLE)
 		{
@@ -65,9 +66,11 @@ public class AmberWorldRecorder implements Listener
 		{
 			return;
 		}
+		this.plugin = plugin;
 		metavalue = Calendar.getInstance().getTimeInMillis();
 		output.open();
-		listener.startListening();
+		listener.stopListening();
+		listener.startListening(plugin);
 		output.write(Serializer.serializeWorld(world));
 		saveAllEntities();
 	}
@@ -107,7 +110,7 @@ public class AmberWorldRecorder implements Listener
 	
 	/* *************** RESTORING METHODS ************* */
 	
-	public void startRestoring()
+	public void startRestoring(Plugin plugin)
 	{
 		stopRecording();
 		if (status == Status.IDLE || status == Status.RECORDING)
@@ -118,8 +121,10 @@ public class AmberWorldRecorder implements Listener
 		{
 			return;
 		}
+		this.plugin = plugin;
 		input.open();
-		listener.startListening();
+		listener.stopListening();
+		listener.startListening(plugin);
 		
 		for (Entity e : world.getEntities())
 		{
@@ -131,7 +136,7 @@ public class AmberWorldRecorder implements Listener
 		}
 		((CraftWorld) world).getHandle().isStatic = true;
 		
-		schedule = Bukkit.getScheduler().scheduleSyncRepeatingTask(Amber.getInstance(), new Runnable()
+		schedule = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable()
 		{
 			public void run()
 			{
@@ -227,7 +232,7 @@ public class AmberWorldRecorder implements Listener
 				step--;
 				
 				if (block.hasMetadata(metadata))
-					block.removeMetadata(metadata, Amber.getInstance());
+					block.removeMetadata(metadata, plugin);
 				/*
 				if (locationAlreadySaved(block.getLocation()))
 				{
@@ -301,7 +306,7 @@ public class AmberWorldRecorder implements Listener
 			return false;
 		else
 		{
-			block.setMetadata(metadata, new FixedMetadataValue(Amber.getInstance(), metavalue));
+			block.setMetadata(metadata, new FixedMetadataValue(plugin, metavalue));
 		}
 		/*
 		if (locationAlreadySaved(block.getLocation()))

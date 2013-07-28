@@ -29,4 +29,18 @@ public class AmberWorldCopier
 	{
 		
 	}
+	
+	public World getWorld()
+	{
+		return world;
+	}
+	public File getFromFile()
+	{
+		return fromFile;
+	}
+	public File getToFile()
+	{
+		return toFile;
+	}
+	
 }

@@ -3,51 +3,40 @@ package com.deaboy.amber;
 import java.util.HashMap;
 
 import org.bukkit.World;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 import com.deaboy.amber.record.AmberWorldRecorder;
 
-public class Amber extends JavaPlugin
+public class Amber
 {
-	private static Amber instance;
-	
+	private static Amber instance = null;
 	private HashMap<World, AmberWorldRecorder> recorders = new HashMap<World, AmberWorldRecorder>();
-
-	@Override
-	public void onEnable()
-	{
-		Amber.instance = this;
-		
-		new AmberCommands();
-	}
-
-	@Override
-	public void onDisable()
-	{
-		instance = null;
-	}
 	
 	public static Amber getInstance()
 	{
+		if (instance == null)
+		{
+			instance = new Amber();
+		}
 		return instance;
 	}
 	
-	// PUBLIC STATIC METHODS / API
 	
-	public static boolean startRecordingWorld(World world)
+	// PUBLIC STATIC METHODS / API
+	public static boolean startRecordingWorld(World world, Plugin plugin)
 	{
-		Amber plugin = getInstance();
+		Amber amber = getInstance();
 		
-		if (!plugin.recorders.containsKey(world))
+		if (!amber.recorders.containsKey(world))
 		{
-			plugin.recorders.put(world, new AmberWorldRecorder(world));
+			amber.recorders.put(world, new AmberWorldRecorder(world));
 		}
 		
-		AmberWorldRecorder recorder = plugin.recorders.get(world);
+		AmberWorldRecorder recorder = amber.recorders.get(world);
 		
 		if (recorder.isIdle())
 		{
-			recorder.startRecording();
+			recorder.startRecording(plugin);
 			return true;
 		}
 		else
@@ -55,17 +44,16 @@ public class Amber extends JavaPlugin
 			return false;
 		}
 	}
-	
 	public static boolean stopRecordingWorld(World world)
 	{
-		Amber plugin = getInstance();
+		Amber amber = getInstance();
 		
-		if (!plugin.recorders.containsKey(world))
+		if (!amber.recorders.containsKey(world))
 		{
-			plugin.recorders.put(world, new AmberWorldRecorder(world));
+			amber.recorders.put(world, new AmberWorldRecorder(world));
 		}
 		
-		AmberWorldRecorder recorder = plugin.recorders.get(world);
+		AmberWorldRecorder recorder = amber.recorders.get(world);
 		
 		if (recorder.isRecording())
 		{
@@ -77,21 +65,20 @@ public class Amber extends JavaPlugin
 			return false;
 		}
 	}
-	
-	public static boolean startRestoringWorld(World world)
+	public static boolean startRestoringWorld(World world, Plugin plugin)
 	{
-		Amber plugin = getInstance();
+		Amber amber = getInstance();
 		
-		if (!plugin.recorders.containsKey(world))
+		if (!amber.recorders.containsKey(world))
 		{
 			return false;
 		}
 		
-		AmberWorldRecorder recorder = plugin.recorders.get(world);
+		AmberWorldRecorder recorder = amber.recorders.get(world);
 		
 		if (recorder.isIdle() || recorder.isRecording())
 		{
-			recorder.startRestoring();
+			recorder.startRestoring(plugin);
 			return true;
 		}
 		else
@@ -99,17 +86,16 @@ public class Amber extends JavaPlugin
 			return false;
 		}
 	}
-
 	public static boolean stopRestoringWorld(World world)
 	{
-		Amber plugin = getInstance();
+		Amber amber = getInstance();
 		
-		if (!plugin.recorders.containsKey(world))
+		if (!amber.recorders.containsKey(world))
 		{
 			return false;
 		}
 		
-		AmberWorldRecorder recorder = plugin.recorders.get(world);
+		AmberWorldRecorder recorder = amber.recorders.get(world);
 		
 		if (recorder.isRestoring())
 		{
@@ -121,16 +107,18 @@ public class Amber extends JavaPlugin
 			return false;
 		}
 	}
-	
 	public static AmberWorldRecorder getWorldRecorder(World world)
 	{
-		Amber plugin = getInstance();
+		Amber amber = getInstance();
 		
-		if (!plugin.recorders.containsKey(world))
+		if (!amber.recorders.containsKey(world))
 		{
-			plugin.recorders.put(world, new AmberWorldRecorder(world));
+			amber.recorders.put(world, new AmberWorldRecorder(world));
 		}
 		
-		return plugin.recorders.get(world);
+		return amber.recorders.get(world);
 	}
+	
+	
+	
 }
