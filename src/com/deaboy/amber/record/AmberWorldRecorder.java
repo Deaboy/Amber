@@ -16,7 +16,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.Listener;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.craftbukkit.v1_6_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_6_R3.CraftWorld;
 
 import com.deaboy.amber.util.Constants;
 import com.deaboy.amber.util.Deserializer;
