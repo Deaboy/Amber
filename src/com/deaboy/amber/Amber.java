@@ -65,7 +65,7 @@ public class Amber
 			return false;
 		}
 	}
-	public static boolean startRestoringWorld(World world, Plugin plugin)
+	public static boolean startRestoringWorld(World world, Plugin plugin, Runnable callback)
 	{
 		Amber amber = getInstance();
 		
@@ -78,7 +78,7 @@ public class Amber
 		
 		if (recorder.isIdle() || recorder.isRecording())
 		{
-			recorder.startRestoring(plugin);
+			recorder.startRestoring(plugin, callback);
 			return true;
 		}
 		else

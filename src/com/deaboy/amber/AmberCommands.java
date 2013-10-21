@@ -57,7 +57,7 @@ public class AmberCommands implements CommandExecutor
 		}
 		else if (args[0].equalsIgnoreCase("restore"))
 		{
-			if (Amber.startRestoringWorld(p.getWorld(), AmberPlugin.getInstance()))
+			if (Amber.startRestoringWorld(p.getWorld(), AmberPlugin.getInstance(), null))
 			{
 				sender.sendMessage("Restoring world");
 			}

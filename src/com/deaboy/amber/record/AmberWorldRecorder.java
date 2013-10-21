@@ -40,6 +40,7 @@ public class AmberWorldRecorder implements Listener
 	private static final int apt = 1000; // ACTIONS PER TICK
 	
 	private String worldData = null;
+	private Runnable callback;
 
 	private List<TinyBlockLoc> blockLocs = new ArrayList<TinyBlockLoc>();
 	
@@ -52,6 +53,8 @@ public class AmberWorldRecorder implements Listener
 		listener = new AmberWorldRecorderListener(world);
 		
 		status = Status.IDLE;
+		
+		callback = null;
 	}
 
 	/* *************** RECORDING METHODS ************* */
@@ -110,7 +113,7 @@ public class AmberWorldRecorder implements Listener
 	
 	/* *************** RESTORING METHODS ************* */
 	
-	public void startRestoring(Plugin plugin)
+	public void startRestoring(Plugin plugin, Runnable callback)
 	{
 		stopRecording();
 		if (status == Status.IDLE || status == Status.RECORDING)
@@ -125,6 +128,7 @@ public class AmberWorldRecorder implements Listener
 		input.open();
 		listener.stopListening();
 		listener.startListening(plugin);
+		this.callback = callback;
 		
 		for (Entity e : world.getEntities())
 		{
@@ -169,8 +173,13 @@ public class AmberWorldRecorder implements Listener
 		
 		Bukkit.getScheduler().cancelTask(schedule);
 		Bukkit.getLogger().log(Level.INFO, "restoration complete");
+		
+		if (this.callback != null)
+			callback.run();
+		callback = null;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void restoreStep()
 	{
 		int step = apt;
